@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefHeight="600.0" prefWidth="927.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.image.majic.MainWindowController">
+   <center>
+      <ScrollPane prefHeight="400.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+         <content>
+            <ImageView fx:id="imageView"  pickOnBounds="true" preserveRatio="true" />
+         </content>
+      </ScrollPane>
+   </center>
+</BorderPane>

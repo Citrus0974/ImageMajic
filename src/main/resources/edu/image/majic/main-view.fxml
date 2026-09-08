@@ -16,6 +16,13 @@
                         <MenuItem accelerator="Shortcut+S" onAction="#onSaveImage" text="_Save image" />
                     </items>
                 </Menu>
+                <Menu text="_View">
+                    <items>
+                        <MenuItem text="_Increase scale" onAction="#onScalePlus" accelerator="Shortcut+=" />
+                        <MenuItem text="_Decrease scale" onAction="#onScaleMinus" accelerator="Shortcut+-" />
+                        <MenuItem text="_Fit to screen" onAction="#onScaleFit" />
+                    </items>
+                </Menu>
             </menus>
         </MenuBar>
     </top>

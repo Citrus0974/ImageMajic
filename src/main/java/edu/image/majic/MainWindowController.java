@@ -3,7 +3,6 @@ package edu.image.majic;
 import edu.image.majic.model.ImageModel;
 import edu.image.majic.util.ImageUtils;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -275,7 +274,6 @@ public class MainWindowController {
         }
     }
 
-    @FXML
     private void zoomImage(double delta) {
         if (imageView.getImage() == null) return;
 

@@ -1,9 +1,15 @@
 package edu.image.majic;
 
 import edu.image.majic.model.ImageModel;
+import edu.image.majic.util.ColorChannel;
+import edu.image.majic.util.HistogramUtils;
 import edu.image.majic.util.ImageUtils;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.chart.AreaChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -14,14 +20,24 @@ import javafx.stage.Stage;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfInt;
 import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
 
+import static edu.image.majic.util.HistogramUtils.calculateHistogramChartSeries;
+
 public class MainWindowController {
     @FXML
-    public ImageView imageView;
+    private ImageView imageView;
     @FXML
-    public ScrollPane imageScrollPane;
+    private ScrollPane imageScrollPane;
+
+    @FXML
+    private ComboBox<String> histogramChannelCombo;
+    @FXML
+    private AreaChart<Number, Number> histogramChart;
+
+
 
     private final ImageModel imageModel = new ImageModel();
 
@@ -44,23 +60,36 @@ public class MainWindowController {
                 zoomImage(delta);
             }
         });
+
+        histogramChannelCombo.getItems().addAll("All (Luminance)",
+//                "All (Comparison)",
+                "Red", "Green", "Blue");
+        histogramChannelCombo.getSelectionModel().selectFirst();
     }
 
     @FXML
-    public void onScalePlus(){
+    public void onScalePlus() {
         zoomImage(0.1);
     }
 
     @FXML
-    public void onScaleMinus(){
+    public void onScaleMinus() {
         zoomImage(-0.1);
     }
 
     @FXML
-    public void onScaleFit(){
+    public void onScaleFit() {
         fitImageToViewport();
         centerImageToViewport();
     }
+
+
+    @FXML
+    public void onHistogramChannelChanged() {
+        updateHistogram();
+    }
+
+
 
     @FXML
     public void onOpenImage() {
@@ -77,6 +106,7 @@ public class MainWindowController {
                 displayMatImage(imageModel.getCurrentMat());
             }
         }
+        updateHistogram();
     }
 
     @FXML
@@ -313,4 +343,58 @@ public class MainWindowController {
             imageView.setTranslateY(0);
         }
     }
+
+    @FXML
+    public void updateHistogram() {
+        Mat currentMat = imageModel.getCurrentMat();
+        if (currentMat == null || currentMat.empty()) return;
+
+        histogramChart.getData().clear();
+
+        int channelsCount = currentMat.channels();
+        if (channelsCount == 4 && !histogramChannelCombo.getItems().contains("Alpha")) {
+            histogramChannelCombo.getItems().add("Alpha");
+        } else if (channelsCount == 3) {
+            histogramChannelCombo.getItems().remove("Alpha");
+        }
+
+        histogramChart.getData().clear();
+        String selectedMode = histogramChannelCombo.getSelectionModel().getSelectedItem();
+
+        if (channelsCount >= 3) {
+            switch (selectedMode) {
+                case "Red" ->
+                        histogramChart.getData().add(calculateHistogramChartSeries(currentMat, ColorChannel.RED, "Red"));
+                case "Green" ->
+                        histogramChart.getData().add(calculateHistogramChartSeries(currentMat, ColorChannel.GREEN, "Green"));
+                case "Blue" ->
+                        histogramChart.getData().add(calculateHistogramChartSeries(currentMat, ColorChannel.BLUE, "Blue"));
+                case "Alpha" -> {
+                    if (channelsCount == 4) {
+                        histogramChart.getData().add(calculateHistogramChartSeries(currentMat, ColorChannel.ALPHA, "Alpha"));
+                    }
+                }
+                case "All (Comparison)" -> {
+                    XYChart.Series<Number, Number> redSeries = calculateHistogramChartSeries(currentMat, ColorChannel.RED, "Red");
+                    XYChart.Series<Number, Number> greenSeries = calculateHistogramChartSeries(currentMat, ColorChannel.GREEN, "Green");
+                    XYChart.Series<Number, Number> blueSeries = calculateHistogramChartSeries(currentMat, ColorChannel.BLUE, "Blue");
+                    histogramChart.getData().addAll(blueSeries, greenSeries, redSeries);
+                }
+                default -> {
+                    Mat grayMat = new Mat();
+                    if (channelsCount == 4) {
+                        Imgproc.cvtColor(currentMat, grayMat, Imgproc.COLOR_BGRA2GRAY);
+                    } else {
+                        Imgproc.cvtColor(currentMat, grayMat, Imgproc.COLOR_BGR2GRAY);
+                    }
+                    histogramChart.getData().add(calculateHistogramChartSeries(grayMat, ColorChannel.BLUE, "Luminance")); //BLUE = channel 0
+                    grayMat.release();
+                }
+            }
+        } else if (channelsCount == 1) {
+            histogramChart.getData().add(calculateHistogramChartSeries(currentMat, ColorChannel.BLUE, "Grayscale")); //BLUE = channel 0
+        }
+    }
+
+
 }

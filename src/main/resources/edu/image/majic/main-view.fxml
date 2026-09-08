@@ -18,9 +18,9 @@
                 </Menu>
                 <Menu text="_View">
                     <items>
-                        <MenuItem text="_Increase scale" onAction="#onScalePlus" accelerator="Shortcut+=" />
-                        <MenuItem text="_Decrease scale" onAction="#onScaleMinus" accelerator="Shortcut+-" />
-                        <MenuItem text="_Fit to screen" onAction="#onScaleFit" />
+                        <MenuItem accelerator="Shortcut+=" onAction="#onScalePlus" text="_Increase scale" />
+                        <MenuItem accelerator="Shortcut+-" onAction="#onScaleMinus" text="_Decrease scale" />
+                        <MenuItem onAction="#onScaleFit" text="_Fit to screen" />
                     </items>
                 </Menu>
             </menus>
@@ -39,9 +39,9 @@
                 <Label text="Scale" />
                 <ButtonBar buttonMinWidth="0.0">
                     <buttons>
-                        <Button text="+" onAction="#onScalePlus" />
-                        <Button text="-" onAction="#onScaleMinus"/>
-                        <Button text="Fit" onAction="#onScaleFit" />
+                        <Button onAction="#onScalePlus" text="+" />
+                        <Button onAction="#onScaleMinus" text="-" />
+                        <Button onAction="#onScaleFit" text="Fit" />
                     </buttons>
                 </ButtonBar>
             <padding>
@@ -53,14 +53,20 @@
     <right>
         <VBox prefWidth="300.0" BorderPane.alignment="CENTER">
             <children>
-                <AreaChart>
+                <AreaChart fx:id="histogramChart" alternativeColumnFillVisible="true" horizontalGridLinesVisible="false" verticalGridLinesVisible="false"
+                           alternativeRowFillVisible="false" createSymbols="false">
                     <xAxis>
-                        <CategoryAxis side="BOTTOM" />
+                        <NumberAxis side="BOTTOM" tickLabelsVisible="false" tickMarkVisible="false" upperBound="255.0" autoRanging="false" tickUnit="50.0" />
                     </xAxis>
                     <yAxis>
-                        <NumberAxis side="LEFT" />
+                        <NumberAxis side="LEFT" tickLabelsVisible="false" tickMarkVisible="false" minorTickVisible="false"/>
                     </yAxis>
                 </AreaChart>
+                <ComboBox onAction="#onHistogramChannelChanged" fx:id="histogramChannelCombo" prefWidth="400.0">
+               <VBox.margin>
+                  <Insets bottom="30.0" left="10.0" right="10.0" top="10.0" />
+               </VBox.margin>
+                </ComboBox>
                 <TableView prefHeight="200.0" prefWidth="200.0">
                     <columns>
                         <TableColumn prefWidth="75.0" text="C1" />

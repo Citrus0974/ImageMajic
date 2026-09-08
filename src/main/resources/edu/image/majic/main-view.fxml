@@ -1,15 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane prefHeight="600.0" prefWidth="927.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.image.majic.MainWindowController">
+<BorderPane prefHeight="900.0" prefWidth="1600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.image.majic.MainWindowController">
+    <top>
+        <MenuBar>
+            <menus>
+                <Menu text="_File">
+                    <items>
+                        <MenuItem text="_Open image" onAction="#onOpenImage" accelerator="Shortcut+O"/>
+                        <MenuItem text="_Save image" onAction="#onSaveImage" accelerator="Shortcut+S"/>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+    </top>
    <center>
-      <ScrollPane prefHeight="400.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+      <ScrollPane fx:id="imageScrollPane" pannable="true" prefHeight="400.0" prefWidth="600.0" BorderPane.alignment="CENTER">
          <content>
-            <ImageView fx:id="imageView"  pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imageView" pickOnBounds="true" preserveRatio="true" />
          </content>
       </ScrollPane>
    </center>
+   <left>
+      <VBox prefWidth="300.0" BorderPane.alignment="CENTER" spacing="10">
+
+      </VBox>
+   </left>
+   <right>
+      <VBox prefWidth="300.0" BorderPane.alignment="CENTER">
+         <children>
+            <AreaChart>
+              <xAxis>
+                <CategoryAxis side="BOTTOM" />
+              </xAxis>
+              <yAxis>
+                <NumberAxis side="LEFT" />
+              </yAxis>
+            </AreaChart>
+            <TableView prefHeight="200.0" prefWidth="200.0">
+              <columns>
+                <TableColumn prefWidth="75.0" text="C1" />
+                <TableColumn prefWidth="75.0" text="C2" />
+              </columns>
+            </TableView>
+         </children>
+      </VBox>
+   </right>
 </BorderPane>

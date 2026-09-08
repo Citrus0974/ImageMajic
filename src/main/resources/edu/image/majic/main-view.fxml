@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
@@ -11,43 +12,55 @@
             <menus>
                 <Menu text="_File">
                     <items>
-                        <MenuItem text="_Open image" onAction="#onOpenImage" accelerator="Shortcut+O"/>
-                        <MenuItem text="_Save image" onAction="#onSaveImage" accelerator="Shortcut+S"/>
+                        <MenuItem accelerator="Shortcut+O" onAction="#onOpenImage" text="_Open image" />
+                        <MenuItem accelerator="Shortcut+S" onAction="#onSaveImage" text="_Save image" />
                     </items>
                 </Menu>
             </menus>
         </MenuBar>
     </top>
-   <center>
-      <ScrollPane fx:id="imageScrollPane" pannable="true" prefHeight="400.0" prefWidth="600.0" BorderPane.alignment="CENTER">
-         <content>
-            <ImageView fx:id="imageView" pickOnBounds="true" preserveRatio="true" />
-         </content>
-      </ScrollPane>
-   </center>
-   <left>
-      <VBox prefWidth="300.0" BorderPane.alignment="CENTER" spacing="10">
-
-      </VBox>
-   </left>
-   <right>
-      <VBox prefWidth="300.0" BorderPane.alignment="CENTER">
-         <children>
-            <AreaChart>
-              <xAxis>
-                <CategoryAxis side="BOTTOM" />
-              </xAxis>
-              <yAxis>
-                <NumberAxis side="LEFT" />
-              </yAxis>
-            </AreaChart>
-            <TableView prefHeight="200.0" prefWidth="200.0">
-              <columns>
-                <TableColumn prefWidth="75.0" text="C1" />
-                <TableColumn prefWidth="75.0" text="C2" />
-              </columns>
-            </TableView>
-         </children>
-      </VBox>
-   </right>
+    <center>
+        <ScrollPane fx:id="imageScrollPane" pannable="true" prefHeight="400.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+            <content>
+                <ImageView fx:id="imageView" pickOnBounds="true" preserveRatio="true" />
+            </content>
+        </ScrollPane>
+    </center>
+    <left>
+        <VBox prefWidth="300.0" spacing="10" BorderPane.alignment="CENTER">
+            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                <Label text="Scale" />
+                <ButtonBar buttonMinWidth="0.0">
+                    <buttons>
+                        <Button text="+" onAction="#onScalePlus" />
+                        <Button text="-" onAction="#onScaleMinus"/>
+                        <Button text="Fit" onAction="#onScaleFit" />
+                    </buttons>
+                </ButtonBar>
+            <padding>
+               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+            </padding>
+            </HBox>
+        </VBox>
+    </left>
+    <right>
+        <VBox prefWidth="300.0" BorderPane.alignment="CENTER">
+            <children>
+                <AreaChart>
+                    <xAxis>
+                        <CategoryAxis side="BOTTOM" />
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis side="LEFT" />
+                    </yAxis>
+                </AreaChart>
+                <TableView prefHeight="200.0" prefWidth="200.0">
+                    <columns>
+                        <TableColumn prefWidth="75.0" text="C1" />
+                        <TableColumn prefWidth="75.0" text="C2" />
+                    </columns>
+                </TableView>
+            </children>
+        </VBox>
+    </right>
 </BorderPane>

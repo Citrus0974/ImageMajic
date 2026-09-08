@@ -48,6 +48,22 @@ public class MainWindowController {
     }
 
     @FXML
+    public void onScalePlus(){
+        zoomImage(0.1);
+    }
+
+    @FXML
+    public void onScaleMinus(){
+        zoomImage(-0.1);
+    }
+
+    @FXML
+    public void onScaleFit(){
+        fitImageToViewport();
+        centerImageToViewport();
+    }
+
+    @FXML
     public void onOpenImage() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open image");

@@ -22,7 +22,14 @@ public class ImageUtils {
     public static HashMap<String, String> addImageParamsToMetadata( HashMap<String, String> metadata, Mat image){
         metadata.put("Width", image.width() + " px");
         metadata.put("Height", image.height() + " px");
-        metadata.put("Color depth", image.depth() + " bit");
+        int depthConstant = image.depth();
+        switch (depthConstant) {
+            case 0, 1 -> metadata.put("Color depth",  "8 bit per channel");
+            case 2, 3 -> metadata.put("Color depth", "16 bit per channel");
+            case 4 -> metadata.put("Color depth", "32 bit per channel");
+            case 5 -> metadata.put("Color depth", "32-bit float per channel");
+            case 6 -> metadata.put("Color depth", "64-bit float per channel");
+        }
         return metadata;
     }
 

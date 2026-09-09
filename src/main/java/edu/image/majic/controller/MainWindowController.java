@@ -469,6 +469,7 @@ public class MainWindowController {
         metadataItems.add(new MetadataTableRow("Last modified", ""));
         metadataItems.add(new MetadataTableRow("Width", ""));
         metadataItems.add(new MetadataTableRow("Height", ""));
+        metadataItems.add(new MetadataTableRow("Color depth", ""));
         metadataItems.add(new MetadataTableRow("Color model", ""));
         metadataItems.add(new MetadataTableRow("Color space", ""));
         metadataItems.add(new MetadataTableRow("Color transform", ""));
@@ -480,16 +481,12 @@ public class MainWindowController {
         fillImageMetadataHashmap(metadataHashMap, file);
         addImageParamsToMetadata(metadataHashMap, image);
         addImageColorModelToMetadata(metadataHashMap, file);
-//        MetadataUtils.printAllMetadata(file);
-        printAllExifMetadata(file);
-        System.out.println(metadataHashMap);
         List<MetadataTableRow> rows = metadataTableView.getItems();
         for (MetadataTableRow row : rows) {
             String parameter = row.getParamName();
             String value = metadataHashMap.get(parameter);
             row.setParamValue(value != null ? value : "");
         }
-
     }
 
 

@@ -1,4 +1,4 @@
-package edu.image.majic;
+package edu.image.majic.view;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;

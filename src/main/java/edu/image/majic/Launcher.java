@@ -1,5 +1,6 @@
 package edu.image.majic;
 
+import edu.image.majic.view.ImageMajicApplication;
 import javafx.application.Application;
 import nu.pattern.OpenCV;
 import org.opencv.core.Core;

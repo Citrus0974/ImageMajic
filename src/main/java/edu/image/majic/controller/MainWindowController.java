@@ -1,16 +1,20 @@
-package edu.image.majic;
+package edu.image.majic.controller;
 
 import edu.image.majic.model.ImageModel;
 import edu.image.majic.util.ColorChannel;
-import edu.image.majic.util.HistogramUtils;
 import edu.image.majic.util.ImageUtils;
-import javafx.application.Platform;
+import edu.image.majic.view.MetadataTableRow;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.chart.AreaChart;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ScrollEvent;
@@ -23,10 +27,19 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.List;
 
 import static edu.image.majic.util.HistogramUtils.calculateHistogramChartSeries;
+import static edu.image.majic.util.ImageUtils.addImageColorModelToMetadata;
+import static edu.image.majic.util.ImageUtils.addImageParamsToMetadata;
+import static edu.image.majic.util.MetadataUtils.fillImageMetadataHashmap;
+import static edu.image.majic.util.MetadataUtils.printAllExifMetadata;
 
 public class MainWindowController {
+    @FXML
+    private Label scaleLabel;
+
     @FXML
     private ImageView imageView;
     @FXML
@@ -36,17 +49,27 @@ public class MainWindowController {
     private ComboBox<String> histogramChannelCombo;
     @FXML
     private AreaChart<Number, Number> histogramChart;
-
+    @FXML
+    private TableView<MetadataTableRow> metadataTableView;
+    @FXML
+    private TableColumn<MetadataTableRow, String> metadataParameterColumn;
+    @FXML
+    private TableColumn<MetadataTableRow, String> metadataValueColumn;
 
 
     private final ImageModel imageModel = new ImageModel();
 
-    private double currentImageZoom = 1;
+    private final DoubleProperty currentImageZoomProperty = new SimpleDoubleProperty(1.0);
     private double imageOriginalWidth = 0;
     private double imageOriginalHeight = 0;
 
     @FXML
     public void initialize() {
+        scaleLabel.textProperty().bind(Bindings.createStringBinding(() -> {
+            int scale = (int) Math.round(currentImageZoomProperty.get() * 100);
+            return "Scale: " + scale + "%";
+        }, currentImageZoomProperty));
+
         imageScrollPane.viewportBoundsProperty().addListener((obs, oldVal, newVal) -> {
             if (imageView.getImage() != null) {
                 adjustAfterResize();
@@ -65,6 +88,26 @@ public class MainWindowController {
 //                "All (Comparison)",
                 "Red", "Green", "Blue");
         histogramChannelCombo.getSelectionModel().selectFirst();
+
+        metadataParameterColumn.setCellValueFactory(new PropertyValueFactory<>("paramName"));
+        metadataValueColumn.setCellValueFactory(new PropertyValueFactory<>("paramValue"));
+        metadataValueColumn.setCellFactory(col -> new TableCell<>() {
+            private final Tooltip tooltip = new Tooltip();
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null || item.isEmpty()) {
+                    setText(null);
+                    setTooltip(null);
+                } else {
+                    setText(item);
+                    tooltip.setText(item);
+                    setTooltip(tooltip);
+                }
+            }
+        });
+        var tableItems = fillMetadataTableRows();
+        metadataTableView.setItems(tableItems);
     }
 
     @FXML
@@ -83,12 +126,20 @@ public class MainWindowController {
         centerImageToViewport();
     }
 
+    @FXML
+    public void onScale100() {
+        if (imageView.getImage() == null) return;
+        currentImageZoomProperty.set(1.0);
+        imageView.setFitWidth(imageOriginalWidth);
+        imageView.setFitHeight(imageOriginalHeight);
+        centerImageToViewport();
+    }
+
 
     @FXML
     public void onHistogramChannelChanged() {
         updateHistogram();
     }
-
 
 
     @FXML
@@ -104,9 +155,10 @@ public class MainWindowController {
             boolean success = imageModel.loadImage(selectedFile);
             if (success) {
                 displayMatImage(imageModel.getCurrentMat());
+                updateHistogram();
+                updateMetadataTableView(selectedFile, imageModel.getCurrentMat());
             }
         }
-        updateHistogram();
     }
 
     @FXML
@@ -114,6 +166,7 @@ public class MainWindowController {
         if (imageModel.getCurrentMat() == null) return;
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save image");
+        fileChooser.setInitialFileName(imageModel.getCurrentFile().getName());
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("JPEG Image (*.jpg)", "*.jpg"),
                 new FileChooser.ExtensionFilter("PNG Image (*.png)", "*.png")
@@ -222,10 +275,10 @@ public class MainWindowController {
 
         double scaleX = viewportWidth / imageOriginalWidth;
         double scaleY = viewportHeight / imageOriginalHeight;
-        currentImageZoom = Math.min(scaleX, scaleY);
+        currentImageZoomProperty.set(Math.min(scaleX, scaleY));
 
-        imageView.setFitWidth(imageOriginalWidth * currentImageZoom);
-        imageView.setFitHeight(imageOriginalHeight * currentImageZoom);
+        imageView.setFitWidth(imageOriginalWidth * currentImageZoomProperty.get());
+        imageView.setFitHeight(imageOriginalHeight * currentImageZoomProperty.get());
 
         imageView.setTranslateX(0);
         imageView.setTranslateY(0);
@@ -240,8 +293,8 @@ public class MainWindowController {
         double viewportWidth = imageScrollPane.getViewportBounds().getWidth();
         double viewportHeight = imageScrollPane.getViewportBounds().getHeight();
 
-        boolean needCenterX = scaledWidth < viewportWidth;
-        boolean needCenterY = scaledHeight < viewportHeight;
+        boolean needCenterX = scaledWidth <= viewportWidth;
+        boolean needCenterY = scaledHeight <= viewportHeight;
 
         if (needCenterX && needCenterY) {
             // Если изображение меньше viewport по обеим осям - центрируем через Pane
@@ -315,12 +368,12 @@ public class MainWindowController {
         double centerX = (scaledWidth * imageScrollPane.getHvalue()) + viewportWidth / 2;
         double centerY = (scaledHeight * imageScrollPane.getVvalue()) + viewportHeight / 2;
 
-        double newZoom = currentImageZoom + delta;
-        currentImageZoom = newZoom;
+        double newZoom = currentImageZoomProperty.get() + delta;
         if (newZoom < 0.01 || newZoom > 20) return;
-        System.out.println("new scale " + currentImageZoom);
-        imageView.setFitWidth(imageOriginalWidth * currentImageZoom);
-        imageView.setFitHeight(imageOriginalHeight * currentImageZoom);
+        System.out.println("new scale " + currentImageZoomProperty.get());
+        currentImageZoomProperty.set(newZoom);
+        imageView.setFitWidth(imageOriginalWidth * currentImageZoomProperty.get());
+        imageView.setFitHeight(imageOriginalHeight * currentImageZoomProperty.get());
 
         double newScaledWidth = imageView.getFitWidth();
         double newScaledHeight = imageView.getFitHeight();
@@ -394,6 +447,49 @@ public class MainWindowController {
         } else if (channelsCount == 1) {
             histogramChart.getData().add(calculateHistogramChartSeries(currentMat, ColorChannel.BLUE, "Grayscale")); //BLUE = channel 0
         }
+    }
+
+    private ObservableList<MetadataTableRow> fillMetadataTableRows() {
+        ObservableList<MetadataTableRow> metadataItems = FXCollections.observableArrayList();
+        metadataItems.add(new MetadataTableRow("Camera manufacturer", ""));
+        metadataItems.add(new MetadataTableRow("Camera model", ""));
+//        metadataItems.add(new MetadataTableRow("Lens manufacturer", ""));
+        metadataItems.add(new MetadataTableRow("Lens model", ""));
+        metadataItems.add(new MetadataTableRow("Lens specification", ""));
+        metadataItems.add(new MetadataTableRow("Exposure Time", ""));
+        metadataItems.add(new MetadataTableRow("F-Number (Aperture)", ""));
+        metadataItems.add(new MetadataTableRow("ISO Speed", ""));
+        metadataItems.add(new MetadataTableRow("Focal length", ""));
+        metadataItems.add(new MetadataTableRow("Focal length (35-mm equivalent)", ""));
+        metadataItems.add(new MetadataTableRow("Editing software", ""));
+        metadataItems.add(new MetadataTableRow("Date/Time", ""));
+        metadataItems.add(new MetadataTableRow("File name", ""));
+        metadataItems.add(new MetadataTableRow("File type", ""));
+        metadataItems.add(new MetadataTableRow("File size", ""));
+        metadataItems.add(new MetadataTableRow("Last modified", ""));
+        metadataItems.add(new MetadataTableRow("Width", ""));
+        metadataItems.add(new MetadataTableRow("Height", ""));
+        metadataItems.add(new MetadataTableRow("Color model", ""));
+        metadataItems.add(new MetadataTableRow("Color space", ""));
+        metadataItems.add(new MetadataTableRow("Color transform", ""));
+        return metadataItems;
+    }
+
+    private void updateMetadataTableView(File file, Mat image) {
+        HashMap<String, String> metadataHashMap = new HashMap<>();
+        fillImageMetadataHashmap(metadataHashMap, file);
+        addImageParamsToMetadata(metadataHashMap, image);
+        addImageColorModelToMetadata(metadataHashMap, file);
+//        MetadataUtils.printAllMetadata(file);
+        printAllExifMetadata(file);
+        System.out.println(metadataHashMap);
+        List<MetadataTableRow> rows = metadataTableView.getItems();
+        for (MetadataTableRow row : rows) {
+            String parameter = row.getParamName();
+            String value = metadataHashMap.get(parameter);
+            row.setParamValue(value != null ? value : "");
+        }
+
     }
 
 

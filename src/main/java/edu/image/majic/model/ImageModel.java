@@ -1,9 +1,12 @@
 package edu.image.majic.model;
 
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfByte;
 import org.opencv.imgcodecs.Imgcodecs;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 public class ImageModel {
     private Mat originalMat;
@@ -15,8 +18,15 @@ public class ImageModel {
         if (originalMat != null) originalMat.release();
         if (currentMat != null) currentMat.release();
 
-        originalMat = Imgcodecs.imread(file.getAbsolutePath(), Imgcodecs.IMREAD_UNCHANGED);
-        System.out.println("Loaded file " + file.getAbsolutePath());
+        try {
+            byte[] imageBytes = Files.readAllBytes(file.toPath());
+            MatOfByte matOfByte = new MatOfByte(imageBytes);
+            originalMat = Imgcodecs.imdecode(matOfByte, Imgcodecs.IMREAD_UNCHANGED);
+            System.out.println("Loaded file " + file.getAbsolutePath());
+        } catch (IOException e) {
+            System.out.println("Error reading file " + file.toPath());
+            return false;
+        }
 
         if (originalMat.empty()) {
             return false;

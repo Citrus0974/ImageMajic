@@ -6,7 +6,7 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane prefHeight="900.0" prefWidth="1600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.image.majic.MainWindowController">
+<BorderPane prefHeight="900.0" prefWidth="1600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.image.majic.controller.MainWindowController">
     <top>
         <MenuBar>
             <menus>
@@ -34,14 +34,15 @@
         </ScrollPane>
     </center>
     <left>
-        <VBox prefWidth="300.0" spacing="10" BorderPane.alignment="CENTER">
+        <VBox prefWidth="330.0" spacing="10" BorderPane.alignment="CENTER">
             <HBox alignment="CENTER_LEFT" spacing="10.0">
-                <Label text="Scale" />
+                <Label fx:id="scaleLabel" text="Scale" />
                 <ButtonBar buttonMinWidth="0.0">
                     <buttons>
                         <Button onAction="#onScalePlus" text="+" />
                         <Button onAction="#onScaleMinus" text="-" />
                         <Button onAction="#onScaleFit" text="Fit" />
+                        <Button onAction="#onScale100" text="100%" />
                     </buttons>
                 </ButtonBar>
             <padding>
@@ -53,24 +54,23 @@
     <right>
         <VBox prefWidth="300.0" BorderPane.alignment="CENTER">
             <children>
-                <AreaChart fx:id="histogramChart" alternativeColumnFillVisible="true" horizontalGridLinesVisible="false" verticalGridLinesVisible="false"
-                           alternativeRowFillVisible="false" createSymbols="false">
+                <AreaChart fx:id="histogramChart" alternativeColumnFillVisible="true" alternativeRowFillVisible="false" createSymbols="false" horizontalGridLinesVisible="false" legendVisible="false" prefHeight="300" prefWidth="300" verticalGridLinesVisible="false">
                     <xAxis>
-                        <NumberAxis side="BOTTOM" tickLabelsVisible="false" tickMarkVisible="false" upperBound="255.0" autoRanging="false" tickUnit="50.0" />
+                        <NumberAxis autoRanging="false" minorTickVisible="false" side="BOTTOM" tickLabelsVisible="false" tickMarkVisible="false" tickUnit="50.0" upperBound="255.0" />
                     </xAxis>
                     <yAxis>
-                        <NumberAxis side="LEFT" tickLabelsVisible="false" tickMarkVisible="false" minorTickVisible="false"/>
+                        <NumberAxis minorTickVisible="false" side="LEFT" tickLabelsVisible="false" tickMarkVisible="false" />
                     </yAxis>
                 </AreaChart>
-                <ComboBox onAction="#onHistogramChannelChanged" fx:id="histogramChannelCombo" prefWidth="400.0">
+                <ComboBox fx:id="histogramChannelCombo" onAction="#onHistogramChannelChanged" prefWidth="400.0">
                <VBox.margin>
                   <Insets bottom="30.0" left="10.0" right="10.0" top="10.0" />
                </VBox.margin>
                 </ComboBox>
-                <TableView prefHeight="200.0" prefWidth="200.0">
+                <TableView fx:id="metadataTableView" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn prefWidth="75.0" text="C1" />
-                        <TableColumn prefWidth="75.0" text="C2" />
+                        <TableColumn fx:id="metadataParameterColumn" editable="false" minWidth="100.0" prefWidth="125.0" sortable="false" text="Parameter name" />
+                        <TableColumn fx:id="metadataValueColumn" editable="false" minWidth="170.0" prefWidth="-1.0" sortable="false" text="Value" />
                     </columns>
                 </TableView>
             </children>

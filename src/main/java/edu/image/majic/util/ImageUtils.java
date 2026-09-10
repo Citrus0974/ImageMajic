@@ -47,10 +47,11 @@ public class ImageUtils {
             int type = bufferedImage.getType();
             switch (type) {
                 case BufferedImage.TYPE_INT_RGB -> colorModel = "RGB";
-                case BufferedImage.TYPE_INT_ARGB, BufferedImage.TYPE_4BYTE_ABGR, BufferedImage.TYPE_INT_ARGB_PRE -> colorModel = "ARGB";
+                case BufferedImage.TYPE_INT_ARGB, BufferedImage.TYPE_INT_ARGB_PRE -> colorModel = "ARGB";
                 case BufferedImage.TYPE_BYTE_GRAY -> colorModel = "Grayscale";
                 case BufferedImage.TYPE_BYTE_INDEXED -> colorModel = "Indexed (Palette)";
                 case BufferedImage.TYPE_3BYTE_BGR -> colorModel = "BGR";
+                case BufferedImage.TYPE_4BYTE_ABGR -> colorModel = "ABGR";
                 default -> colorModel = colorModel + " " + type;
             }
         } catch (IOException e) {

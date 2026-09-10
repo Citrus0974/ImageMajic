@@ -1,17 +1,27 @@
 package edu.image.majic.model;
 
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ImageModel {
     private Mat originalMat;
     private Mat currentMat;
     private File currentFile;
+
+    private int brightnessValue = 0;
+    private int contrastValue = 0;
+    private int saturationValue = 0;
+    private boolean isGrayscale = false;
+    private boolean isInverted = false;
 
     public boolean loadImage(File file) {
         if (file == null || !file.exists()) return false;
@@ -37,6 +47,90 @@ public class ImageModel {
         return true;
     }
 
+    public void reApplyFilters() {
+        if (originalMat == null) return;
+        Mat newMat = originalMat.clone();
+
+        newMat = applyBrightnessAndContrast(newMat);
+        newMat = applySaturation(newMat);
+        newMat = applyInvert(newMat);
+        newMat = applyGrayscale(newMat);
+
+        Mat oldMat = currentMat;
+        currentMat = newMat;
+        oldMat.release();
+    }
+
+    private Mat applyBrightnessAndContrast(Mat newMat) {
+        if (brightnessValue != 0 || contrastValue != 0) {
+//            double alpha = contrastValue;
+//            double beta = brightnessValue;
+//            if (alpha <= 0) {
+//                alpha = (alpha + 256.0) / 256.0;
+//            }
+
+            double alpha;
+            if (contrastValue >= 0) {
+                alpha = 1.0 + (contrastValue / 255.0) * 6.0;
+            } else {
+                alpha = (contrastValue + 256.0) / 256.0;
+            }
+            double beta = 128.0 * (1.0 - alpha) + brightnessValue;
+
+            System.out.println("alpha=" + alpha + " beta=" + beta + " contrast=" + contrastValue);
+
+            newMat.convertTo(newMat, -1, alpha, beta);
+        }
+        return newMat;
+    }
+
+    private Mat applySaturation(Mat newMat) {
+        if (saturationValue != 0 && currentMat.channels() >= 3 && !isGrayscale) {
+            double k = saturationValue;
+            double maxGain = 4.0;
+            if (k >= 0) {
+                k = 1.0 + (k / 255.0) * (maxGain - 1.0);
+            } else {
+                k = 1.0 + (k / 255.0);
+            }
+            System.out.println("saturation k=" + k);
+            Mat hsvMat = new Mat();
+            Imgproc.cvtColor(newMat, hsvMat, Imgproc.COLOR_BGR2HSV);
+            List<Mat> hsvChannels = new ArrayList<>();
+            Core.split(hsvMat, hsvChannels);
+            hsvChannels.get(1).convertTo(hsvChannels.get(1), -1, k, 0);
+            Core.merge(hsvChannels, hsvMat);
+            Imgproc.cvtColor(hsvMat, newMat, Imgproc.COLOR_HSV2BGR);
+
+            hsvMat.release();
+            for (Mat m : hsvChannels) m.release();
+        }
+
+        return newMat;
+    }
+
+    private Mat applyGrayscale(Mat newMat) {
+        if (isGrayscale) {
+            if (newMat.channels() == 4) {
+                Imgproc.cvtColor(newMat, newMat, Imgproc.COLOR_BGRA2GRAY);
+                Imgproc.cvtColor(newMat, newMat, Imgproc.COLOR_GRAY2BGRA);
+            } else if (newMat.channels() == 3) {
+                Imgproc.cvtColor(newMat, newMat, Imgproc.COLOR_BGR2GRAY);
+                Imgproc.cvtColor(newMat, newMat, Imgproc.COLOR_GRAY2BGR);
+            }
+            System.out.println("grayscale applied");
+        }
+        return newMat;
+    }
+
+    private Mat applyInvert(Mat newMat) {
+        if (isInverted) {
+            Core.bitwise_not(newMat, newMat);
+            System.out.println("Invert applied");
+        }
+        return newMat;
+    }
+
     public Mat getOriginalMat() {
         return originalMat;
     }
@@ -49,10 +143,58 @@ public class ImageModel {
         return currentFile;
     }
 
+    public int getBrightnessValue() {
+        return brightnessValue;
+    }
+
+    public void setBrightnessValue(int brightnessValue) {
+        this.brightnessValue = brightnessValue;
+    }
+
+    public int getContrastValue() {
+        return contrastValue;
+    }
+
+    public void setContrastValue(int contrastValue) {
+        this.contrastValue = contrastValue;
+    }
+
+    public int getSaturationValue() {
+        return saturationValue;
+    }
+
+    public void setSaturationValue(int saturationValue) {
+        this.saturationValue = saturationValue;
+    }
+
+    public boolean isGrayscale() {
+        return isGrayscale;
+    }
+
+    public void setGrayscale(boolean grayscale) {
+        isGrayscale = grayscale;
+    }
+
+    public boolean isInverted() {
+        return isInverted;
+    }
+
+    public void setInverted(boolean inverted) {
+        isInverted = inverted;
+    }
+
     public void reset() {
+        brightnessValue = 0;
+        contrastValue = 0;
+        saturationValue = 0;
+        isGrayscale = false;
+        isInverted = false;
+
         if (originalMat != null) {
             currentMat.release();
             currentMat = originalMat.clone();
         }
     }
+
+
 }

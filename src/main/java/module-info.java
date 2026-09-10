@@ -6,6 +6,7 @@ module edu.image.majic {
     requires jdk.jshell;
     requires java.sql;
     requires com.drew.metadata;
+    requires javafx.base;
 
 
     opens edu.image.majic to javafx.fxml;

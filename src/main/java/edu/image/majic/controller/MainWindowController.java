@@ -22,11 +22,14 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfByte;
 import org.opencv.core.MatOfInt;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 
@@ -34,11 +37,29 @@ import static edu.image.majic.util.HistogramUtils.calculateHistogramChartSeries;
 import static edu.image.majic.util.ImageUtils.addImageColorModelToMetadata;
 import static edu.image.majic.util.ImageUtils.addImageParamsToMetadata;
 import static edu.image.majic.util.MetadataUtils.fillImageMetadataHashmap;
-import static edu.image.majic.util.MetadataUtils.printAllExifMetadata;
 
 public class MainWindowController {
     @FXML
     private Label scaleLabel;
+
+    @FXML
+    private Label brightnessValueLabel;
+    @FXML
+    private Slider brightnessSlider;
+    @FXML
+    private Label contrastValueLabel;
+    @FXML
+    private Slider contrastSlider;
+    @FXML
+    private Label saturationValueLabel;
+    @FXML
+    private Slider saturationSlider;
+    @FXML
+    private CheckBox grayscaleCheckbox;
+    @FXML
+    private CheckBox invertedCheckbox;
+    @FXML
+    private Button resetButton;
 
     @FXML
     private ImageView imageView;
@@ -70,6 +91,34 @@ public class MainWindowController {
             return "Scale: " + scale + "%";
         }, currentImageZoomProperty));
 
+        brightnessSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            brightnessValueLabel.setText(String.valueOf(newVal.intValue()));
+            imageModel.setBrightnessValue(newVal.intValue());
+            applyFilters();
+        });
+
+        contrastSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            contrastValueLabel.setText(String.valueOf(newVal.intValue()));
+            imageModel.setContrastValue(newVal.intValue());
+            applyFilters();
+        });
+
+        saturationSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            saturationValueLabel.setText(String.valueOf(newVal.intValue()));
+            imageModel.setSaturationValue(newVal.intValue());
+            applyFilters();
+        });
+
+        grayscaleCheckbox.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            imageModel.setGrayscale(newVal);
+            applyFilters();
+        });
+
+        invertedCheckbox.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            imageModel.setInverted(newVal);
+            applyFilters();
+        });
+
         imageScrollPane.viewportBoundsProperty().addListener((obs, oldVal, newVal) -> {
             if (imageView.getImage() != null) {
                 adjustAfterResize();
@@ -93,6 +142,7 @@ public class MainWindowController {
         metadataValueColumn.setCellValueFactory(new PropertyValueFactory<>("paramValue"));
         metadataValueColumn.setCellFactory(col -> new TableCell<>() {
             private final Tooltip tooltip = new Tooltip();
+
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -141,6 +191,17 @@ public class MainWindowController {
         updateHistogram();
     }
 
+    @FXML
+    public void onResetAll() {
+        imageModel.reset();
+        brightnessSlider.setValue(0);
+        contrastSlider.setValue(0);
+        saturationSlider.setValue(0);
+        grayscaleCheckbox.setSelected(false);
+        invertedCheckbox.setSelected(false);
+        applyFilters();
+    }
+
 
     @FXML
     public void onOpenImage() {
@@ -155,6 +216,8 @@ public class MainWindowController {
             boolean success = imageModel.loadImage(selectedFile);
             if (success) {
                 displayMatImage(imageModel.getCurrentMat());
+                fitImageToViewport();
+                centerImageToViewport();
                 updateHistogram();
                 updateMetadataTableView(selectedFile, imageModel.getCurrentMat());
             }
@@ -175,22 +238,46 @@ public class MainWindowController {
         Stage stage = (Stage) imageView.getScene().getWindow();
         File saveFile = fileChooser.showSaveDialog(stage);
 
+        MatOfInt params;
+        String ext;
         if (saveFile != null) {
             String path = saveFile.getAbsolutePath();
             Mat matToSave = imageModel.getCurrentMat();
-
             if (path.endsWith(".jpg") || path.endsWith(".jpeg")) {
                 int quality = showCompressionDialog("jpg");
                 if (quality == -1) return;
-                MatOfInt params = new MatOfInt(Imgcodecs.IMWRITE_JPEG_QUALITY, quality);
-                boolean success = Imgcodecs.imwrite(path, matToSave, params);
-                System.out.println("Saved JPG with quality: " + quality + " " + success);
+                params = new MatOfInt(Imgcodecs.IMWRITE_JPEG_QUALITY, quality);
+                ext = ".jpg";
+//                boolean success = Imgcodecs.imwrite(path, matToSave, params);
+//                System.out.println("Saved JPG with quality: " + quality + " " + success);
             } else if (path.endsWith(".png")) {
                 int quality = showCompressionDialog("png");
                 if (quality == -1) return;
-                MatOfInt params = new MatOfInt(Imgcodecs.IMWRITE_PNG_COMPRESSION, quality);
-                boolean success = Imgcodecs.imwrite(path, matToSave, params);
-                System.out.println("Saved JPG with quality: " + quality + " " + success);
+                params = new MatOfInt(Imgcodecs.IMWRITE_PNG_COMPRESSION, quality);
+                ext = ".png";
+//                boolean success = Imgcodecs.imwrite(path, matToSave, params);
+//                System.out.println("Saved PNG with quality: " + quality + " " + success);
+            } else {
+                System.out.println("Error saving file: " + path);
+                return;
+            }
+
+            MatOfByte buffer = new MatOfByte();
+            boolean encoded = Imgcodecs.imencode(ext, matToSave, buffer, params);
+            if (!encoded) {
+                System.out.println("Failed to encode to " + ext);
+                buffer.release();
+                return;
+            }
+
+            try {
+                Files.write(saveFile.toPath(), buffer.toArray());
+                System.out.println("Saved " + ext + ": " + path);
+            } catch (IOException e) {
+                System.err.println("Error writing file: " + path + " : " + e.getMessage());
+            } finally {
+                buffer.release();
+                params.release();
             }
         }
     }
@@ -257,13 +344,13 @@ public class MainWindowController {
         imageOriginalWidth = displayImage.getWidth();
         imageOriginalHeight = displayImage.getHeight();
 
-        imageView.setTranslateX(0);
-        imageView.setTranslateY(0);
-        imageScrollPane.setHvalue(0.5);
-        imageScrollPane.setVvalue(0.5);
-
-        fitImageToViewport();
-        centerImageToViewport();
+//        imageView.setTranslateX(0);
+//        imageView.setTranslateY(0);
+//        imageScrollPane.setHvalue(0.5);
+//        imageScrollPane.setVvalue(0.5);
+//
+//        fitImageToViewport();
+//        centerImageToViewport();
     }
 
     @FXML
@@ -489,5 +576,10 @@ public class MainWindowController {
         }
     }
 
+    private void applyFilters() {
+        imageModel.reApplyFilters();
+        displayMatImage(imageModel.getCurrentMat());
+        updateHistogram();
+    }
 
 }

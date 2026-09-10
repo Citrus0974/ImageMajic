@@ -202,6 +202,21 @@ public class MainWindowController {
         applyFilters();
     }
 
+    @FXML
+    public void onRotateLeft() {
+        imageModel.rotateLeft();
+        applyFilters();
+        fitImageToViewport();
+        centerImageToViewport();
+    }
+    @FXML
+    public void onRotateRight() {
+        imageModel.rotateRight();
+        applyFilters();
+        fitImageToViewport();
+        centerImageToViewport();
+    }
+
 
     @FXML
     public void onOpenImage() {

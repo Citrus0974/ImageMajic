@@ -131,6 +131,25 @@ public class ImageModel {
         return newMat;
     }
 
+    public void rotateLeft() {
+        if (originalMat == null) return;
+
+        Mat rotatedMat = new Mat();
+        Core.rotate(originalMat, rotatedMat, Core.ROTATE_90_COUNTERCLOCKWISE);
+        Mat oldMat = originalMat;
+        originalMat = rotatedMat;
+        oldMat.release();
+    }
+    public void rotateRight() {
+        if (originalMat == null) return;
+
+        Mat rotatedMat = new Mat();
+        Core.rotate(originalMat, rotatedMat, Core.ROTATE_90_CLOCKWISE);
+        Mat oldMat = originalMat;
+        originalMat = rotatedMat;
+        oldMat.release();
+    }
+
     public Mat getOriginalMat() {
         return originalMat;
     }

@@ -111,6 +111,11 @@ public class MainWindowController {
 
         grayscaleCheckbox.selectedProperty().addListener((obs, oldVal, newVal) -> {
             imageModel.setGrayscale(newVal);
+            if(newVal) {
+                saturationSlider.setDisable(true);
+            } else {
+                saturationSlider.setDisable(false);
+            }
             applyFilters();
         });
 
@@ -194,11 +199,7 @@ public class MainWindowController {
     @FXML
     public void onResetAll() {
         imageModel.reset();
-        brightnessSlider.setValue(0);
-        contrastSlider.setValue(0);
-        saturationSlider.setValue(0);
-        grayscaleCheckbox.setSelected(false);
-        invertedCheckbox.setSelected(false);
+        resetUiControls();
         applyFilters();
     }
 
@@ -235,6 +236,7 @@ public class MainWindowController {
                 centerImageToViewport();
                 updateHistogram();
                 updateMetadataTableView(selectedFile, imageModel.getCurrentMat());
+                resetUiControls();
             }
         }
     }
@@ -595,6 +597,14 @@ public class MainWindowController {
         imageModel.reApplyFilters();
         displayMatImage(imageModel.getCurrentMat());
         updateHistogram();
+    }
+
+    private void resetUiControls(){
+        brightnessSlider.setValue(0);
+        contrastSlider.setValue(0);
+        saturationSlider.setValue(0);
+        grayscaleCheckbox.setSelected(false);
+        invertedCheckbox.setSelected(false);
     }
 
 }

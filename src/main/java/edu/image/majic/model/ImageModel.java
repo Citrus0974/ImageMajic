@@ -3,7 +3,9 @@ package edu.image.majic.model;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
+import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.CLAHE;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
@@ -22,6 +24,9 @@ public class ImageModel {
     private int saturationValue = 0;
     private boolean isGrayscale = false;
     private boolean isInverted = false;
+    private boolean isEqualizeHist = false;
+    private int claheValue = 0;
+
 
     public boolean loadImage(File file) {
         if (file == null || !file.exists()) return false;
@@ -113,13 +118,37 @@ public class ImageModel {
         if (isGrayscale) {
             if (newMat.channels() == 4) {
                 Imgproc.cvtColor(newMat, newMat, Imgproc.COLOR_BGRA2GRAY);
+                newMat = applyEqualizeHist(newMat);
+                newMat = applyCLAHE(newMat);
                 Imgproc.cvtColor(newMat, newMat, Imgproc.COLOR_GRAY2BGRA);
             } else if (newMat.channels() == 3) {
                 Imgproc.cvtColor(newMat, newMat, Imgproc.COLOR_BGR2GRAY);
+                newMat = applyEqualizeHist(newMat);
+                newMat = applyCLAHE(newMat);
                 Imgproc.cvtColor(newMat, newMat, Imgproc.COLOR_GRAY2BGR);
             }
             System.out.println("grayscale applied");
         }
+        return newMat;
+    }
+
+    private Mat applyEqualizeHist(Mat newMat) {
+        if (newMat.channels() != 1 || !isEqualizeHist) {
+            return newMat;
+        }
+        Imgproc.equalizeHist(newMat, newMat);
+        System.out.println("applied EqualizeHist");
+        return newMat;
+    }
+
+    private Mat applyCLAHE(Mat newMat) {
+        if (newMat.channels() != 1 || claheValue == 0) {
+            return newMat;
+        }
+        double clipLimit = (double) (claheValue + 1) / 25.0;
+        CLAHE clahe = Imgproc.createCLAHE(clipLimit, new Size(8, 8));
+        clahe.apply(newMat, newMat);
+        System.out.println("applied CLAHE: amount:" + claheValue + " ; clipLimit: " + clipLimit);
         return newMat;
     }
 
@@ -131,6 +160,8 @@ public class ImageModel {
         return newMat;
     }
 
+
+
     public void rotateLeft() {
         if (originalMat == null) return;
 
@@ -140,6 +171,7 @@ public class ImageModel {
         originalMat = rotatedMat;
         oldMat.release();
     }
+
     public void rotateRight() {
         if (originalMat == null) return;
 
@@ -200,6 +232,22 @@ public class ImageModel {
 
     public void setInverted(boolean inverted) {
         isInverted = inverted;
+    }
+
+    public boolean isEqualizeHist() {
+        return isEqualizeHist;
+    }
+
+    public void setEqualizeHist(boolean equalizeHist) {
+        isEqualizeHist = equalizeHist;
+    }
+
+    public int getClaheValue() {
+        return claheValue;
+    }
+
+    public void setClaheValue(int claheValue) {
+        this.claheValue = claheValue;
     }
 
     public void reset() {

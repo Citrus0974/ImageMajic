@@ -59,6 +59,12 @@ public class MainWindowController {
     @FXML
     private CheckBox invertedCheckbox;
     @FXML
+    private CheckBox equalizeHistCheckbox;
+    @FXML
+    private Label claheValueLabel;
+    @FXML
+    private Slider claheSlider;
+    @FXML
     private Button resetButton;
 
     @FXML
@@ -113,9 +119,28 @@ public class MainWindowController {
             imageModel.setGrayscale(newVal);
             if(newVal) {
                 saturationSlider.setDisable(true);
+                equalizeHistCheckbox.setDisable(false);
+                claheSlider.setDisable(false);
             } else {
                 saturationSlider.setDisable(false);
+                equalizeHistCheckbox.setDisable(true);
+                claheSlider.setDisable(true);
+                claheSlider.setValue(0);
             }
+            applyFilters();
+        });
+
+        equalizeHistCheckbox.setDisable(true);
+        equalizeHistCheckbox.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            claheSlider.setDisable(newVal);
+            imageModel.setEqualizeHist(newVal);
+            applyFilters();
+        });
+
+        claheSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            claheValueLabel.setText(String.valueOf(newVal.intValue()));
+            equalizeHistCheckbox.setDisable(! (newVal.intValue()==0));
+            imageModel.setClaheValue(newVal.intValue());
             applyFilters();
         });
 

@@ -65,6 +65,10 @@ public class MainWindowController {
     @FXML
     private Slider claheSlider;
     @FXML
+    private Label gammaValueLabel;
+    @FXML
+    private Slider gammaSlider;
+    @FXML
     private Button resetButton;
 
     @FXML
@@ -115,6 +119,12 @@ public class MainWindowController {
             applyFilters();
         });
 
+        gammaSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            gammaValueLabel.setText(String.valueOf(newVal.intValue()));
+            imageModel.setGammaValue(newVal.intValue());
+            applyFilters();
+        });
+
         grayscaleCheckbox.selectedProperty().addListener((obs, oldVal, newVal) -> {
             imageModel.setGrayscale(newVal);
             if(newVal) {
@@ -123,9 +133,10 @@ public class MainWindowController {
                 claheSlider.setDisable(false);
             } else {
                 saturationSlider.setDisable(false);
+                equalizeHistCheckbox.setSelected(false);
+                claheSlider.setValue(0);
                 equalizeHistCheckbox.setDisable(true);
                 claheSlider.setDisable(true);
-                claheSlider.setValue(0);
             }
             applyFilters();
         });
@@ -137,6 +148,7 @@ public class MainWindowController {
             applyFilters();
         });
 
+        claheSlider.setDisable(true);
         claheSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
             claheValueLabel.setText(String.valueOf(newVal.intValue()));
             equalizeHistCheckbox.setDisable(! (newVal.intValue()==0));
@@ -507,7 +519,7 @@ public class MainWindowController {
         double newScaledWidth = imageView.getFitWidth();
         double newScaledHeight = imageView.getFitHeight();
 
-        if (newScaledWidth < viewportWidth && newScaledHeight < viewportHeight) {
+        if (newScaledWidth <= viewportWidth && newScaledHeight <= viewportHeight) {
             centerImageToViewport();
         } else {
             // Восстанавливаем позицию скролла относительно центра
@@ -628,8 +640,11 @@ public class MainWindowController {
         brightnessSlider.setValue(0);
         contrastSlider.setValue(0);
         saturationSlider.setValue(0);
+        gammaSlider.setValue(0);
         grayscaleCheckbox.setSelected(false);
         invertedCheckbox.setSelected(false);
+        equalizeHistCheckbox.setSelected(false);
+        claheSlider.setValue(0);
     }
 
 }

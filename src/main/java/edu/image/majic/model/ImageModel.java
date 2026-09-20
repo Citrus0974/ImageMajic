@@ -1,9 +1,6 @@
 package edu.image.majic.model;
 
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
-import org.opencv.core.Size;
+import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.CLAHE;
 import org.opencv.imgproc.Imgproc;
@@ -26,6 +23,7 @@ public class ImageModel {
     private boolean isInverted = false;
     private boolean isEqualizeHist = false;
     private int claheValue = 0;
+    private int gammaValue = 0;
 
 
     public boolean loadImage(File file) {
@@ -58,6 +56,7 @@ public class ImageModel {
 
         newMat = applyBrightnessAndContrast(newMat);
         newMat = applySaturation(newMat);
+        newMat = applyGamma(newMat);
         newMat = applyInvert(newMat);
         newMat = applyGrayscale(newMat);
 
@@ -160,7 +159,25 @@ public class ImageModel {
         return newMat;
     }
 
+    private Mat applyGamma(Mat newMat) {
+        if(gammaValue == 0) {
+            return newMat;
+        }
 
+        double gamma = Math.exp((double) -gammaValue /  50.0);
+        Mat lut = new Mat(1, 256, CvType.CV_8UC1);
+        byte[] lutData = new byte[256];
+        for (int i = 0; i < 256; i++) {
+            double normalized = (double) i / 255.0;
+            double corrected = Math.pow(normalized, gamma) * 255.0;
+            lutData[i] = (byte) Math.min(255, Math.max(0, Math.round(corrected)));
+        }
+        lut.put(0, 0, lutData);
+
+        Core.LUT(newMat, lut, newMat);
+        System.out.println("applied gamma=" + gamma);
+        return newMat;
+    }
 
     public void rotateLeft() {
         if (originalMat == null) return;
@@ -250,12 +267,23 @@ public class ImageModel {
         this.claheValue = claheValue;
     }
 
+    public int getGammaValue() {
+        return gammaValue;
+    }
+
+    public void setGammaValue(int gammaValue) {
+        this.gammaValue = gammaValue;
+    }
+
     public void reset() {
         brightnessValue = 0;
         contrastValue = 0;
         saturationValue = 0;
+        gammaValue = 0;
         isGrayscale = false;
         isInverted = false;
+        isEqualizeHist = false;
+        claheValue = 0;
 
         if (originalMat != null) {
             currentMat.release();

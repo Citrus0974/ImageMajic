@@ -125,6 +125,9 @@ public class ImageModel {
                 newMat = applyEqualizeHist(newMat);
                 newMat = applyCLAHE(newMat);
                 Imgproc.cvtColor(newMat, newMat, Imgproc.COLOR_GRAY2BGR);
+            } else if (newMat.channels() == 1) {
+                newMat = applyEqualizeHist(newMat);
+                newMat = applyCLAHE(newMat);
             }
             System.out.println("grayscale applied");
         }
@@ -142,6 +145,7 @@ public class ImageModel {
 
     private Mat applyCLAHE(Mat newMat) {
         if (newMat.channels() != 1 || claheValue == 0) {
+            System.out.println(newMat.channels() + " " + claheValue);
             return newMat;
         }
         double clipLimit = (double) (claheValue + 1) / 25.0;

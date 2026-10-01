@@ -1,0 +1,2 @@
+#script-1, then
+ & "C:\Users\komp\.jdks\graalvm-ce-25.0.2\bin\native-image" -jar .\target\majic-1.0-jar-with-dependencies.jar -H:ConfigurationFileDirectories=.\native-image-agent_config-pid20692-20261001T180221Z\ --enable-native-access=ALL-UNNAMED --no-fallback majic-app

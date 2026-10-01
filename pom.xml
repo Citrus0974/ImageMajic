@@ -13,7 +13,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.12.1</junit.version>
         <maven.compiler.release>25</maven.compiler.release>
-        <gluonfx.plugin.version>1.0.23</gluonfx.plugin.version>
+        <gluonfx.plugin.version>1.0.29</gluonfx.plugin.version>
     </properties>
 
     <dependencies>
@@ -75,25 +75,25 @@
                 <configuration>
                     <mainClass>edu.image.majic/edu.image.majic.Launcher</mainClass>
                     <options>
-                        <option>--enable-native-access=javafx.graphics</option>
+                        <option>--enable-native-access=edu.image.majic,javafx.graphics</option>
                         <option>--add-opens=javafx.graphics/com.sun.marlin=ALL-UNNAMED</option>
                     </options>
                 </configuration>
-                <executions>
-                    <execution>
-                        <!-- Default configuration for running with: mvn clean javafx:run -->
-                        <id>default-cli</id>
-                        <configuration>
-                            <mainClass>edu.image.majic/edu.image.majic.Launcher</mainClass>
-                            <launcher>app</launcher>
-                            <jlinkZipName>app</jlinkZipName>
-                            <jlinkImageName>app</jlinkImageName>
-                            <noManPages>true</noManPages>
-                            <stripDebug>true</stripDebug>
-                            <noHeaderFiles>true</noHeaderFiles>
-                        </configuration>
-                    </execution>
-                </executions>
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        &lt;!&ndash; Default configuration for running with: mvn clean javafx:run &ndash;&gt;-->
+<!--                        <id>default-cli</id>-->
+<!--                        <configuration>-->
+<!--                            <mainClass>edu.image.majic/edu.image.majic.Launcher</mainClass>-->
+<!--                            <launcher>app</launcher>-->
+<!--                            <jlinkZipName>app</jlinkZipName>-->
+<!--                            <jlinkImageName>app</jlinkImageName>-->
+<!--                            <noManPages>true</noManPages>-->
+<!--                            <stripDebug>true</stripDebug>-->
+<!--                            <noHeaderFiles>true</noHeaderFiles>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
             </plugin>
 
             <plugin>
@@ -101,10 +101,19 @@
                 <artifactId>gluonfx-maven-plugin</artifactId>
                 <version>${gluonfx.plugin.version}</version>
                 <configuration>
-                    <mainClass>edu.image.majic.Launcher</mainClass>
+                    <mainClass>edu.image.majic/edu.image.majic.Launcher</mainClass>
                     <runtimeArgs>
-                        <arg>--enable-native-access=javafx.graphics</arg>
+                        <arg>--enable-native-access=ALL-UNNAMED</arg>
                     </runtimeArgs>
+                    <nativeImageArgs>
+                        <arg>-H:+EnableURLProtocols=http,https</arg>
+                        <arg>--initialize-at-run-time=org.opencv.core.Core</arg>
+                        <arg>--initialize-at-run-time=nu.pattern.opencv</arg>
+                        <arg>-H:+AllowIncompleteClasspath</arg>
+                    </nativeImageArgs>
+                    <graalvmHome>
+                        C:\Users\komp\.jdks\graalvm-ce-25.0.2
+                    </graalvmHome>
                 </configuration>
             </plugin>
         </plugins>

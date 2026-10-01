@@ -4,6 +4,7 @@ import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
 import java.io.IOException;
@@ -79,4 +80,12 @@ public class ImageModel {
     }
 
 
+    public void convertToGrayscale() {
+        if(currentMat == null || currentMat.channels() == 1) return;
+        switch (currentMat.channels()) {
+            case 3 -> Imgproc.cvtColor(currentMat, currentMat, Imgproc.COLOR_BGR2GRAY);
+            case 4 -> Imgproc.cvtColor(currentMat, currentMat, Imgproc.COLOR_BGRA2GRAY);
+            default -> {}
+        }
+    }
 }

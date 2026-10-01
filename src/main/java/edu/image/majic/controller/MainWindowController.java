@@ -9,6 +9,7 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.chart.AreaChart;
@@ -148,6 +149,8 @@ public class MainWindowController {
         imageModel.reset();
         resetUiControls();
         reloadImage();
+        fitImageToViewport();
+        centerImageToViewport();
     }
 
     @FXML
@@ -449,7 +452,9 @@ public class MainWindowController {
     }
 
     private void reloadImage() {
-        displayMatImage(imageModel.getCurrentMat());
+        Mat mat = imageModel.getCurrentMat();
+        if (mat == null) return;
+        displayMatImage(mat);
         updateHistogram();
     }
 
@@ -550,4 +555,8 @@ public class MainWindowController {
 
     }
 
+    public void onGrayscaleButton() {
+        imageModel.convertToGrayscale();
+        reloadImage();
+    }
 }

@@ -43,35 +43,6 @@ public class MainWindowController {
     private Label scaleLabel;
 
     @FXML
-    private Label brightnessValueLabel;
-    @FXML
-    private Slider brightnessSlider;
-    @FXML
-    private Label contrastValueLabel;
-    @FXML
-    private Slider contrastSlider;
-    @FXML
-    private Label saturationValueLabel;
-    @FXML
-    private Slider saturationSlider;
-    @FXML
-    private CheckBox grayscaleCheckbox;
-    @FXML
-    private CheckBox invertedCheckbox;
-    @FXML
-    private CheckBox equalizeHistCheckbox;
-    @FXML
-    private Label claheValueLabel;
-    @FXML
-    private Slider claheSlider;
-    @FXML
-    private Label gammaValueLabel;
-    @FXML
-    private Slider gammaSlider;
-    @FXML
-    private Button resetButton;
-
-    @FXML
     private ImageView imageView;
     @FXML
     private ScrollPane imageScrollPane;
@@ -101,66 +72,6 @@ public class MainWindowController {
             return "Scale: " + scale + "%";
         }, currentImageZoomProperty));
 
-        brightnessSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-            brightnessValueLabel.setText(String.valueOf(newVal.intValue()));
-            imageModel.setBrightnessValue(newVal.intValue());
-            applyFilters();
-        });
-
-        contrastSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-            contrastValueLabel.setText(String.valueOf(newVal.intValue()));
-            imageModel.setContrastValue(newVal.intValue());
-            applyFilters();
-        });
-
-        saturationSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-            saturationValueLabel.setText(String.valueOf(newVal.intValue()));
-            imageModel.setSaturationValue(newVal.intValue());
-            applyFilters();
-        });
-
-        gammaSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-            gammaValueLabel.setText(String.valueOf(newVal.intValue()));
-            imageModel.setGammaValue(newVal.intValue());
-            applyFilters();
-        });
-
-        grayscaleCheckbox.selectedProperty().addListener((obs, oldVal, newVal) -> {
-            imageModel.setGrayscale(newVal);
-            if(newVal) {
-                saturationSlider.setDisable(true);
-                equalizeHistCheckbox.setDisable(false);
-                claheSlider.setDisable(false);
-            } else {
-                saturationSlider.setDisable(false);
-                equalizeHistCheckbox.setSelected(false);
-                claheSlider.setValue(0);
-                equalizeHistCheckbox.setDisable(true);
-                claheSlider.setDisable(true);
-            }
-            applyFilters();
-        });
-
-        equalizeHistCheckbox.setDisable(true);
-        equalizeHistCheckbox.selectedProperty().addListener((obs, oldVal, newVal) -> {
-            claheSlider.setDisable(newVal);
-            imageModel.setEqualizeHist(newVal);
-            applyFilters();
-        });
-
-        claheSlider.setDisable(true);
-        claheSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-            claheValueLabel.setText(String.valueOf(newVal.intValue()));
-            equalizeHistCheckbox.setDisable(! (newVal.intValue()==0));
-            imageModel.setClaheValue(newVal.intValue());
-            applyFilters();
-        });
-
-        invertedCheckbox.selectedProperty().addListener((obs, oldVal, newVal) -> {
-            imageModel.setInverted(newVal);
-            applyFilters();
-        });
-
         imageScrollPane.viewportBoundsProperty().addListener((obs, oldVal, newVal) -> {
             if (imageView.getImage() != null) {
                 adjustAfterResize();
@@ -184,7 +95,6 @@ public class MainWindowController {
         metadataValueColumn.setCellValueFactory(new PropertyValueFactory<>("paramValue"));
         metadataValueColumn.setCellFactory(col -> new TableCell<>() {
             private final Tooltip tooltip = new Tooltip();
-
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -237,20 +147,20 @@ public class MainWindowController {
     public void onResetAll() {
         imageModel.reset();
         resetUiControls();
-        applyFilters();
+        reloadImage();
     }
 
     @FXML
     public void onRotateLeft() {
         imageModel.rotateLeft();
-        applyFilters();
+        reloadImage();
         fitImageToViewport();
         centerImageToViewport();
     }
     @FXML
     public void onRotateRight() {
         imageModel.rotateRight();
-        applyFilters();
+        reloadImage();
         fitImageToViewport();
         centerImageToViewport();
     }
@@ -538,6 +448,11 @@ public class MainWindowController {
         }
     }
 
+    private void reloadImage() {
+        displayMatImage(imageModel.getCurrentMat());
+        updateHistogram();
+    }
+
     @FXML
     public void updateHistogram() {
         Mat currentMat = imageModel.getCurrentMat();
@@ -630,21 +545,9 @@ public class MainWindowController {
         }
     }
 
-    private void applyFilters() {
-        imageModel.reApplyFilters();
-        displayMatImage(imageModel.getCurrentMat());
-        updateHistogram();
-    }
 
     private void resetUiControls(){
-        brightnessSlider.setValue(0);
-        contrastSlider.setValue(0);
-        saturationSlider.setValue(0);
-        gammaSlider.setValue(0);
-        grayscaleCheckbox.setSelected(false);
-        invertedCheckbox.setSelected(false);
-        equalizeHistCheckbox.setSelected(false);
-        claheSlider.setValue(0);
+
     }
 
 }

@@ -1,12 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.chart.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.AreaChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="900.0" prefWidth="1600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.image.majic.controller.MainWindowController">
+<BorderPane prefHeight="900.0" prefWidth="1600.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.image.majic.controller.MainWindowController">
     <top>
         <MenuBar>
             <menus>
@@ -34,10 +47,10 @@
         </ScrollPane>
     </center>
     <left>
-        <VBox prefWidth="330.0" spacing="10" BorderPane.alignment="CENTER">
-            <HBox alignment="CENTER_LEFT">
-                <Label fx:id="scaleLabel" prefHeight="17.0" prefWidth="65.0" text="Scale" />
-                <ButtonBar buttonMinWidth="0.0" prefWidth="232.0">
+        <VBox prefHeight="875.0" prefWidth="340.0" spacing="10" BorderPane.alignment="CENTER">
+            <HBox alignment="CENTER_LEFT" prefHeight="45.0" prefWidth="325.0">
+                <Label fx:id="scaleLabel" prefHeight="17.0" prefWidth="74.0" text="Scale" />
+                <ButtonBar buttonMinWidth="0.0" prefHeight="25.0" prefWidth="233.0">
                     <buttons>
                         <Button onAction="#onScalePlus" text="+" />
                         <Button onAction="#onScaleMinus" text="-" />
@@ -49,95 +62,13 @@
                     <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                 </padding>
                 <VBox.margin>
-                    <Insets left="10.0" top="10.0" />
-                </VBox.margin>
-            </HBox>
-
-            <Separator />
-
-            <HBox alignment="CENTER_RIGHT" spacing="10.0">
-                <Label text="Luminance:" />
-                <Label fx:id="brightnessValueLabel" text="0" />
-                <Slider fx:id="brightnessSlider" blockIncrement="1" max="255" min="-255" prefHeight="14.0" prefWidth="205.0" value="0" />
-                <padding>
-                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                </padding>
-            </HBox>
-
-            <HBox alignment="CENTER_RIGHT" spacing="10.0">
-                <Label text="Contrast:" />
-                <Label fx:id="contrastValueLabel" text="0" />
-                <Slider fx:id="contrastSlider" blockIncrement="1" max="255" min="-255" prefHeight="14.0" prefWidth="205.0" value="0" />
-                <padding>
-                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                </padding>
-            </HBox>
-
-            <HBox alignment="CENTER_RIGHT" spacing="10.0">
-                <Label text="Saturation:" />
-                <Label fx:id="saturationValueLabel" text="0" />
-                <Slider fx:id="saturationSlider" blockIncrement="1" max="255" min="-255" prefHeight="14.0" prefWidth="205.0" value="0" />
-                <padding>
-                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                </padding>
-            </HBox>
-
-            <HBox alignment="CENTER_RIGHT" spacing="10.0">
-                <Label text="Gamma:" />
-                <Label fx:id="gammaValueLabel" text="0" />
-                <Slider fx:id="gammaSlider" blockIncrement="1" max="100" min="-100" prefHeight="14.0" prefWidth="205.0" value="0" />
-                <padding>
-                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                </padding>
-            </HBox>
-
-            <HBox alignment="CENTER" spacing="40.0">
-                <HBox alignment="CENTER" spacing="10.0" HBox.hgrow="ALWAYS">
-                    <Label text="Grayscale" />
-                    <CheckBox fx:id="grayscaleCheckbox" />
-                </HBox>
-                <Separator />
-                <HBox alignment="CENTER" spacing="10.0" HBox.hgrow="ALWAYS">
-                    <Label text="Inverted" />
-                    <CheckBox fx:id="invertedCheckbox" />
-                </HBox>
-
-                <padding>
-                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                </padding>
-                <opaqueInsets>
                     <Insets />
-                </opaqueInsets>
-                <VBox.margin>
-                    <Insets right="5.0" />
                 </VBox.margin>
             </HBox>
 
             <Separator />
 
-            <HBox alignment="CENTER" spacing="15.0">
-                <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="Infinity" style="-fx-font-weight: bold;" text="Grayscale only" HBox.hgrow="ALWAYS">
-               <VBox.margin>
-                  <Insets right="25.0" />
-               </VBox.margin></Label>
-                <Label text="Equalize Histogram">
-               <VBox.margin>
-                  <Insets right="40.0" />
-               </VBox.margin></Label>
-                <CheckBox fx:id="equalizeHistCheckbox" />
-            <VBox.margin>
-               <Insets right="33.0" />
-            </VBox.margin>
-            </HBox>
-            <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="Infinity" text="Contrast Limited Adaptive Histogram Equalization" HBox.hgrow="ALWAYS" />
-            <HBox alignment="CENTER" spacing="15.0">
-                <Label fx:id="claheValueLabel" text="0" />
-                <Slider fx:id="claheSlider" blockIncrement="1" max="99" min="0" prefWidth="230.0" value="0">
-                    <VBox.margin>
-                        <Insets left="20.0" right="20.0" />
-                    </VBox.margin>
-                </Slider>
-            </HBox>
+            <Separator />
 
             <Separator />
 
@@ -157,6 +88,16 @@
                <Insets left="20.0" right="20.0" />
             </padding>
             </HBox>
+
+                <padding>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </padding>
+                <opaqueInsets>
+                    <Insets />
+                </opaqueInsets>
+                <VBox.margin>
+                    <Insets right="5.0" />
+                </VBox.margin>
 
         </VBox>
     </left>

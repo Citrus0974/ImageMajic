@@ -79,21 +79,21 @@
                         <option>--add-opens=javafx.graphics/com.sun.marlin=ALL-UNNAMED</option>
                     </options>
                 </configuration>
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        &lt;!&ndash; Default configuration for running with: mvn clean javafx:run &ndash;&gt;-->
-<!--                        <id>default-cli</id>-->
-<!--                        <configuration>-->
-<!--                            <mainClass>edu.image.majic/edu.image.majic.Launcher</mainClass>-->
-<!--                            <launcher>app</launcher>-->
-<!--                            <jlinkZipName>app</jlinkZipName>-->
-<!--                            <jlinkImageName>app</jlinkImageName>-->
-<!--                            <noManPages>true</noManPages>-->
-<!--                            <stripDebug>true</stripDebug>-->
-<!--                            <noHeaderFiles>true</noHeaderFiles>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
-<!--                </executions>-->
+                <!--                <executions>-->
+                <!--                    <execution>-->
+                <!--                        &lt;!&ndash; Default configuration for running with: mvn clean javafx:run &ndash;&gt;-->
+                <!--                        <id>default-cli</id>-->
+                <!--                        <configuration>-->
+                <!--                            <mainClass>edu.image.majic/edu.image.majic.Launcher</mainClass>-->
+                <!--                            <launcher>app</launcher>-->
+                <!--                            <jlinkZipName>app</jlinkZipName>-->
+                <!--                            <jlinkImageName>app</jlinkImageName>-->
+                <!--                            <noManPages>true</noManPages>-->
+                <!--                            <stripDebug>true</stripDebug>-->
+                <!--                            <noHeaderFiles>true</noHeaderFiles>-->
+                <!--                        </configuration>-->
+                <!--                    </execution>-->
+                <!--                </executions>-->
             </plugin>
 
             <plugin>
@@ -115,6 +115,45 @@
                         C:\Users\komp\.jdks\graalvm-ce-25.0.2
                     </graalvmHome>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>edu.image.majic.Launcher</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.6.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>edu.image.majic.Launcher</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

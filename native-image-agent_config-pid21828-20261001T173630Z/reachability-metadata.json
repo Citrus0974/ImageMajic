@@ -1,0 +1,29 @@
+{
+  "reflection": [
+    {
+      "type": "java.lang.Boolean",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "getBoolean",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        }
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "module": "java.base",
+      "glob": "sun/launcher/resources/launcher_ru.properties"
+    },
+    {
+      "module": "java.base",
+      "glob": "sun/launcher/resources/launcher_ru_RU.properties"
+    },
+    {
+      "bundle": "sun.launcher.resources.launcher"
+    }
+  ]
+}

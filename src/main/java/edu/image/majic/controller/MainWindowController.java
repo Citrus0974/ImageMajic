@@ -22,6 +22,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.converter.IntegerStringConverter;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.core.MatOfInt;
@@ -33,6 +34,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.UnaryOperator;
 
 import static edu.image.majic.util.HistogramUtils.calculateHistogramChartSeries;
 import static edu.image.majic.util.ImageUtils.addImageColorModelToMetadata;
@@ -42,6 +44,11 @@ import static edu.image.majic.util.MetadataUtils.fillImageMetadataHashmap;
 public class MainWindowController {
     @FXML
     private Label scaleLabel;
+
+    @FXML
+    private TextField erosionSizeField;
+    @FXML
+    private ComboBox<String> erosionShapeCombo;
 
     @FXML
     private ImageView imageView;
@@ -86,6 +93,27 @@ public class MainWindowController {
                 zoomImage(delta);
             }
         });
+
+        UnaryOperator<TextFormatter.Change> filter = change -> {
+            String newText = change.getControlNewText();
+            if (newText.isEmpty()) {
+                return change;
+            }
+            if (newText.matches("\\d+")) {
+                int value = Integer.parseInt(newText);
+                if (value >= 3 && value <= 15) {
+                    return change;
+                }
+            }
+            return null;
+        };
+        TextFormatter<Integer> integerTextFormatter = new TextFormatter<>(new IntegerStringConverter(), 3, filter);
+
+        erosionShapeCombo.getItems().addAll("Square", "Cross", "Ellipse");
+        erosionShapeCombo.getSelectionModel().selectFirst();
+        erosionSizeField.setTextFormatter(integerTextFormatter);
+
+
 
         histogramChannelCombo.getItems().addAll("All (Luminance)",
 //                "All (Comparison)",
@@ -552,11 +580,19 @@ public class MainWindowController {
 
 
     private void resetUiControls(){
-
+        erosionSizeField.setText("3");
+        erosionShapeCombo.getSelectionModel().select(0);
     }
 
     public void onGrayscaleButton() {
         imageModel.convertToGrayscale();
+        reloadImage();
+    }
+
+    public void onErosionApply() {
+        int size = Integer.parseInt(erosionSizeField.getText());
+        String mask = erosionShapeCombo.getSelectionModel().getSelectedItem();
+        imageModel.applyErosion(size, mask, null);
         reloadImage();
     }
 }

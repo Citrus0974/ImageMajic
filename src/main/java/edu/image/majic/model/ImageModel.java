@@ -3,6 +3,7 @@ package edu.image.majic.model;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
+import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
@@ -81,11 +82,31 @@ public class ImageModel {
 
 
     public void convertToGrayscale() {
-        if(currentMat == null || currentMat.channels() == 1) return;
+        if (currentMat == null || currentMat.channels() == 1) return;
         switch (currentMat.channels()) {
             case 3 -> Imgproc.cvtColor(currentMat, currentMat, Imgproc.COLOR_BGR2GRAY);
             case 4 -> Imgproc.cvtColor(currentMat, currentMat, Imgproc.COLOR_BGRA2GRAY);
-            default -> {}
+            default -> {
+            }
         }
+    }
+
+    public void applyErosion(int size, String maskType, byte[] customMask) {
+        if (currentMat == null || originalMat == null || originalMat.empty()) return;
+        Mat kernel;
+        if (customMask == null || customMask.length == 0) {
+            int opencvShape;
+            switch (maskType) {
+                case "Square" -> opencvShape = Imgproc.MORPH_RECT;
+                case "Cross" -> opencvShape = Imgproc.MORPH_CROSS;
+                case "Ellipse" -> opencvShape = Imgproc.MORPH_ELLIPSE;
+                default -> opencvShape = Imgproc.MORPH_RECT;
+            }
+            kernel = Imgproc.getStructuringElement(opencvShape, new Size(size, size));
+        } else {
+            kernel = new MatOfByte(customMask);
+        }
+        Imgproc.erode(currentMat, currentMat, kernel);
+        System.out.println("applied erosion: " + size + ", " + maskType);
     }
 }

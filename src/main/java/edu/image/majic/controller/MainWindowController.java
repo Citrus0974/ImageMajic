@@ -11,7 +11,6 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.chart.AreaChart;
@@ -49,6 +48,9 @@ public class MainWindowController {
     private Label scaleLabel;
 
     @FXML
+    private Button grayscaleButton;
+
+    @FXML
     private TextField erosionSizeField;
     @FXML
     private ComboBox<String> erosionShapeCombo;
@@ -56,6 +58,26 @@ public class MainWindowController {
     public TextField dilationSizeField;
     @FXML
     private ComboBox<String> dilationShapeCombo;
+    @FXML
+    public TextField openingSizeField;
+    @FXML
+    private ComboBox<String> openingShapeCombo;
+    @FXML
+    public TextField closingSizeField;
+    @FXML
+    private ComboBox<String> closingShapeCombo;
+    @FXML
+    public TextField gradientSizeField;
+    @FXML
+    private ComboBox<String> gradientShapeCombo;
+    @FXML
+    public TextField topHatSizeField;
+    @FXML
+    private ComboBox<String> topHatShapeCombo;
+    @FXML
+    public TextField blackHatSizeField;
+    @FXML
+    private ComboBox<String> blackHatShapeCombo;
 
     @FXML
     private ImageView imageView;
@@ -107,11 +129,37 @@ public class MainWindowController {
         dilationShapeCombo.getItems().addAll("Square", "Cross", "Ellipse", "Custom");
         dilationShapeCombo.getSelectionModel().selectFirst();
         dilationSizeField.setTextFormatter(getMaskSizeTextFormatter());
+        openingShapeCombo.getItems().addAll("Square", "Cross", "Ellipse", "Custom");
+        openingShapeCombo.getSelectionModel().selectFirst();
+        openingSizeField.setTextFormatter(getMaskSizeTextFormatter());
+        closingShapeCombo.getItems().addAll("Square", "Cross", "Ellipse", "Custom");
+        closingShapeCombo.getSelectionModel().selectFirst();
+        closingSizeField.setTextFormatter(getMaskSizeTextFormatter());
+        gradientShapeCombo.getItems().addAll("Square", "Cross", "Ellipse", "Custom");
+        gradientShapeCombo.getSelectionModel().selectFirst();
+        gradientSizeField.setTextFormatter(getMaskSizeTextFormatter());
+        topHatShapeCombo.getItems().addAll("Square", "Cross", "Ellipse", "Custom");
+        topHatShapeCombo.getSelectionModel().selectFirst();
+        topHatSizeField.setTextFormatter(getMaskSizeTextFormatter());
+        blackHatShapeCombo.getItems().addAll("Square", "Cross", "Ellipse", "Custom");
+        blackHatShapeCombo.getSelectionModel().selectFirst();
+        blackHatSizeField.setTextFormatter(getMaskSizeTextFormatter());
+
 
         erosionShapeCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
-            observeMorphologyComboBox(newValue, erosionSizeField, erosionShapeCombo));
+                observeMorphologyComboBox(newValue, erosionSizeField, erosionShapeCombo));
         dilationShapeCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
-            observeMorphologyComboBox(newValue, dilationSizeField, dilationShapeCombo));
+                observeMorphologyComboBox(newValue, dilationSizeField, dilationShapeCombo));
+        openingShapeCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
+                observeMorphologyComboBox(newValue, openingSizeField, openingShapeCombo));
+        closingShapeCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
+                observeMorphologyComboBox(newValue, closingSizeField, closingShapeCombo));
+        gradientShapeCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
+                observeMorphologyComboBox(newValue, gradientSizeField, gradientShapeCombo));
+        topHatShapeCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
+                observeMorphologyComboBox(newValue, topHatSizeField, topHatShapeCombo));
+        blackHatShapeCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
+                observeMorphologyComboBox(newValue, blackHatSizeField, blackHatShapeCombo));
 
         histogramChannelCombo.getItems().addAll("All (Luminance)",
 //                "All (Comparison)",
@@ -122,6 +170,7 @@ public class MainWindowController {
         metadataValueColumn.setCellValueFactory(new PropertyValueFactory<>("paramValue"));
         metadataValueColumn.setCellFactory(col -> new TableCell<>() {
             private final Tooltip tooltip = new Tooltip();
+
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -162,7 +211,7 @@ public class MainWindowController {
             }
             if (newText.matches("\\d+")) {
                 int value = Integer.parseInt(newText);
-                if (value >= 3 && value <= 101) {
+                if (value >= 1 && value <= 101) {
                     return change;
                 }
             }
@@ -219,6 +268,7 @@ public class MainWindowController {
         fitImageToViewport();
         centerImageToViewport();
     }
+
     @FXML
     public void onRotateRight() {
         imageModel.rotateRight();
@@ -610,15 +660,23 @@ public class MainWindowController {
     }
 
 
-    private void resetUiControls(){
-        erosionSizeField.setText("3");
+    private void resetUiControls() {
         erosionShapeCombo.getSelectionModel().selectFirst();
+        dilationShapeCombo.getSelectionModel().selectFirst();
+        openingShapeCombo.getSelectionModel().selectFirst();
+        closingShapeCombo.getSelectionModel().selectFirst();
+        gradientShapeCombo.getSelectionModel().selectFirst();
+        topHatShapeCombo.getSelectionModel().selectFirst();
+        blackHatShapeCombo.getSelectionModel().selectFirst();
+        grayscaleButton.setDisable(false);
     }
 
     public void onGrayscaleButton() {
         imageModel.convertToGrayscale();
         reloadImage();
+        grayscaleButton.setDisable(true);
     }
+
 
     public void onErosionApply() {
         int size = Integer.parseInt(erosionSizeField.getText());
@@ -626,11 +684,42 @@ public class MainWindowController {
         imageModel.applyErosion(size, mask, null);
         reloadImage();
     }
-
     public void onDilationApply() {
         int size = Integer.parseInt(dilationSizeField.getText());
         String mask = dilationShapeCombo.getSelectionModel().getSelectedItem();
         imageModel.applyDilation(size, mask, null);
         reloadImage();
     }
+    public void onOpenApply() {
+        int size = Integer.parseInt(openingSizeField.getText());
+        String mask = openingShapeCombo.getSelectionModel().getSelectedItem();
+        imageModel.applyOpening(size, mask, null);
+        reloadImage();
+    }
+    public void onCloseApply() {
+        int size = Integer.parseInt(closingSizeField.getText());
+        String mask = closingShapeCombo.getSelectionModel().getSelectedItem();
+        imageModel.applyClosing(size, mask, null);
+        reloadImage();
+    }
+    public void onGradientApply() {
+        int size = Integer.parseInt(gradientSizeField.getText());
+        String mask = gradientShapeCombo.getSelectionModel().getSelectedItem();
+        imageModel.applyGradient(size, mask, null);
+        reloadImage();
+    }
+    public void onTopHatApply() {
+        int size = Integer.parseInt(topHatSizeField.getText());
+        String mask = topHatShapeCombo.getSelectionModel().getSelectedItem();
+        imageModel.applyTopHat(size, mask, null);
+        reloadImage();
+    }
+    public void onBlackHatApply() {
+        int size = Integer.parseInt(blackHatSizeField.getText());
+        String mask = blackHatShapeCombo.getSelectionModel().getSelectedItem();
+        imageModel.applyBlackHat(size, mask, null);
+        reloadImage();
+    }
+
+
 }

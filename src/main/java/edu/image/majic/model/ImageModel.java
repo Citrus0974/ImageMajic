@@ -98,13 +98,43 @@ public class ImageModel {
         Imgproc.erode(currentMat, currentMat, kernel);
         System.out.println("applied erosion: " + size + ", " + maskType);
     }
-
     public void applyDilation(int size, String maskType, @Nullable byte[] customMask) {
         Mat kernel = createKernel(size, maskType, customMask);
         if (kernel == null) return;
         Imgproc.dilate(currentMat, currentMat, kernel);
         System.out.println("applied dilation: " + size + ", " + maskType);
     }
+    public void applyOpening(int size, String maskType, @Nullable byte[] customMask) {
+        Mat kernel = createKernel(size, maskType, customMask);
+        if (kernel == null) return;
+        Imgproc.morphologyEx(currentMat, currentMat, Imgproc.MORPH_OPEN, kernel);
+        System.out.println("applied open: " + size + ", " + maskType);
+    }
+    public void applyClosing(int size, String maskType, @Nullable byte[] customMask) {
+        Mat kernel = createKernel(size, maskType, customMask);
+        if (kernel == null) return;
+        Imgproc.morphologyEx(currentMat, currentMat, Imgproc.MORPH_CLOSE, kernel);
+        System.out.println("applied close: " + size + ", " + maskType);
+    }
+    public void applyGradient(int size, String maskType, @Nullable byte[] customMask) {
+        Mat kernel = createKernel(size, maskType, customMask);
+        if (kernel == null) return;
+        Imgproc.morphologyEx(currentMat, currentMat, Imgproc.MORPH_GRADIENT, kernel);
+        System.out.println("applied gradient: " + size + ", " + maskType);
+    }
+    public void applyTopHat(int size, String maskType, @Nullable byte[] customMask) {
+        Mat kernel = createKernel(size, maskType, customMask);
+        if (kernel == null) return;
+        Imgproc.morphologyEx(currentMat, currentMat, Imgproc.MORPH_TOPHAT, kernel);
+        System.out.println("applied top hat: " + size + ", " + maskType);
+    }
+    public void applyBlackHat(int size, String maskType, @Nullable byte[] customMask) {
+        Mat kernel = createKernel(size, maskType, customMask);
+        if (kernel == null) return;
+        Imgproc.morphologyEx(currentMat, currentMat, Imgproc.MORPH_BLACKHAT, kernel);
+        System.out.println("applied black hat: " + size + ", " + maskType);
+    }
+
 
     private Mat createKernel(int size, String maskType, byte[] customMask) {
         if (currentMat == null || originalMat == null || originalMat.empty()) return null;

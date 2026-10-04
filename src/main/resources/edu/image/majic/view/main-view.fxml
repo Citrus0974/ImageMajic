@@ -20,99 +20,115 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="900.0" prefWidth="1600.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.image.majic.controller.MainWindowController">
+<BorderPane prefHeight="900.0" prefWidth="1600.0" xmlns="http://javafx.com/javafx/26"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.image.majic.controller.MainWindowController">
     <top>
         <MenuBar>
             <menus>
                 <Menu text="_File">
                     <items>
-                        <MenuItem accelerator="Shortcut+O" onAction="#onOpenImage" text="_Open image" />
-                        <MenuItem accelerator="Shortcut+S" onAction="#onSaveImage" text="_Save image" />
+                        <MenuItem accelerator="Shortcut+O" onAction="#onOpenImage" text="_Open image"/>
+                        <MenuItem accelerator="Shortcut+S" onAction="#onSaveImage" text="_Save image"/>
                     </items>
                 </Menu>
                 <Menu text="_View">
                     <items>
-                        <MenuItem accelerator="Shortcut+=" onAction="#onScalePlus" text="_Increase scale" />
-                        <MenuItem accelerator="Shortcut+-" onAction="#onScaleMinus" text="_Decrease scale" />
-                        <MenuItem onAction="#onScaleFit" text="_Fit to screen" />
+                        <MenuItem accelerator="Shortcut+=" onAction="#onScalePlus" text="_Increase scale"/>
+                        <MenuItem accelerator="Shortcut+-" onAction="#onScaleMinus" text="_Decrease scale"/>
+                        <MenuItem onAction="#onScaleFit" text="_Fit to screen"/>
                     </items>
                 </Menu>
             </menus>
         </MenuBar>
     </top>
     <center>
-        <ScrollPane fx:id="imageScrollPane" pannable="true" prefHeight="400.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+        <ScrollPane fx:id="imageScrollPane" pannable="true" prefHeight="400.0" prefWidth="600.0"
+                    BorderPane.alignment="CENTER">
             <content>
-                <ImageView fx:id="imageView" pickOnBounds="true" preserveRatio="true" />
+                <ImageView fx:id="imageView" pickOnBounds="true" preserveRatio="true"/>
             </content>
         </ScrollPane>
     </center>
     <left>
         <VBox prefHeight="875.0" prefWidth="340.0" spacing="10" BorderPane.alignment="CENTER">
             <HBox alignment="CENTER_LEFT" prefHeight="45.0" prefWidth="325.0">
-                <Label fx:id="scaleLabel" prefHeight="17.0" prefWidth="74.0" text="Scale" />
+                <Label fx:id="scaleLabel" prefHeight="17.0" prefWidth="74.0" text="Scale"/>
                 <ButtonBar buttonMinWidth="0.0" prefHeight="25.0" prefWidth="233.0">
                     <buttons>
-                        <Button onAction="#onScalePlus" text="+" />
-                        <Button onAction="#onScaleMinus" text="-" />
-                        <Button onAction="#onScaleFit" text="Fit" />
-                        <Button onAction="#onScale100" text="100%" />
+                        <Button onAction="#onScalePlus" text="+"/>
+                        <Button onAction="#onScaleMinus" text="-"/>
+                        <Button onAction="#onScaleFit" text="Fit"/>
+                        <Button onAction="#onScale100" text="100%"/>
                     </buttons>
                 </ButtonBar>
                 <padding>
-                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
                 </padding>
                 <VBox.margin>
-                    <Insets />
+                    <Insets/>
                 </VBox.margin>
             </HBox>
 
-            <Separator />
+            <Separator/>
 
             <HBox spacing="20.0">
-                <Button fx:id="grayscaleButton" maxWidth="Infinity" onAction="#onGrayscaleButton" text="Convert to Grayscale" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" />
+                <Button fx:id="grayscaleButton" maxWidth="Infinity" onAction="#onGrayscaleButton"
+                        text="Convert to Grayscale" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS"/>
                 <VBox.margin>
-                    <Insets left="40.0" right="40.0" />
+                    <Insets left="40.0" right="40.0"/>
                 </VBox.margin>
             </HBox>
 
-            <Separator />
+            <Separator/>
 
-            <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="Infinity" text="Erosion" />
+            <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="Infinity" text="Erosion"/>
             <HBox alignment="CENTER" spacing="15.0">
-                <Label text="Size" />
-                <TextField fx:id="erosionSizeField" prefWidth="40" promptText="3" />
-                <ComboBox fx:id="erosionShapeCombo" prefWidth="150" />
-                <Button onAction="#onErosionApply" text="Apply" />
+                <Label text="Size"/>
+                <TextField fx:id="erosionSizeField" prefWidth="40" promptText="3"/>
+                <ComboBox fx:id="erosionShapeCombo" prefWidth="150"/>
+                <Button onAction="#onErosionApply" text="Apply"/>
 
             </HBox>
-            <Separator />
+            <Separator/>
+
+
+            <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="Infinity" text="Dilation"/>
+            <HBox alignment="CENTER" spacing="15.0">
+                <Label text="Size"/>
+                <TextField fx:id="dilationSizeField" prefWidth="40" promptText="3"/>
+                <ComboBox fx:id="dilationShapeCombo" prefWidth="150"/>
+                <Button onAction="#onDilationApply" text="Apply"/>
+
+            </HBox>
+            <Separator/>
+
 
             <HBox spacing="20.0">
-                <Button fx:id="resetButton" maxWidth="Infinity" onAction="#onResetAll" text="Reset all" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" />
+                <Button fx:id="resetButton" maxWidth="Infinity" onAction="#onResetAll" text="Reset all"
+                        HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS"/>
                 <VBox.margin>
-                    <Insets left="40.0" right="40.0" />
+                    <Insets left="40.0" right="40.0"/>
                 </VBox.margin>
             </HBox>
 
-            <Separator />
+            <Separator/>
 
             <HBox spacing="20">
-                <Button maxWidth="Infinity" onAction="#onRotateLeft" text="Rotate left" HBox.hgrow="ALWAYS" />
-                <Button maxWidth="Infinity" onAction="#onRotateRight" text="Rotate right" HBox.hgrow="ALWAYS" />
+                <Button maxWidth="Infinity" onAction="#onRotateLeft" text="Rotate left" HBox.hgrow="ALWAYS"/>
+                <Button maxWidth="Infinity" onAction="#onRotateRight" text="Rotate right" HBox.hgrow="ALWAYS"/>
                 <padding>
-                    <Insets left="20.0" right="20.0" />
+                    <Insets left="20.0" right="20.0"/>
                 </padding>
             </HBox>
 
             <padding>
-                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
             </padding>
             <opaqueInsets>
-                <Insets />
+                <Insets/>
             </opaqueInsets>
             <VBox.margin>
-                <Insets right="5.0" />
+                <Insets right="5.0"/>
             </VBox.margin>
 
         </VBox>
@@ -120,23 +136,29 @@
     <right>
         <VBox prefWidth="300.0" BorderPane.alignment="CENTER">
             <children>
-                <AreaChart fx:id="histogramChart" alternativeColumnFillVisible="true" alternativeRowFillVisible="false" createSymbols="false" horizontalGridLinesVisible="false" legendVisible="false" prefHeight="300" prefWidth="300" verticalGridLinesVisible="false">
+                <AreaChart fx:id="histogramChart" alternativeColumnFillVisible="true" alternativeRowFillVisible="false"
+                           createSymbols="false" horizontalGridLinesVisible="false" legendVisible="false"
+                           prefHeight="300" prefWidth="300" verticalGridLinesVisible="false">
                     <xAxis>
-                        <NumberAxis autoRanging="false" minorTickVisible="false" side="BOTTOM" tickLabelsVisible="false" tickMarkVisible="false" tickUnit="50.0" upperBound="255.0" />
+                        <NumberAxis autoRanging="false" minorTickVisible="false" side="BOTTOM" tickLabelsVisible="false"
+                                    tickMarkVisible="false" tickUnit="50.0" upperBound="255.0"/>
                     </xAxis>
                     <yAxis>
-                        <NumberAxis minorTickVisible="false" side="LEFT" tickLabelsVisible="false" tickMarkVisible="false" />
+                        <NumberAxis minorTickVisible="false" side="LEFT" tickLabelsVisible="false"
+                                    tickMarkVisible="false"/>
                     </yAxis>
                 </AreaChart>
                 <ComboBox fx:id="histogramChannelCombo" onAction="#onHistogramChannelChanged" prefWidth="400.0">
                     <VBox.margin>
-                        <Insets bottom="30.0" left="10.0" right="10.0" top="10.0" />
+                        <Insets bottom="30.0" left="10.0" right="10.0" top="10.0"/>
                     </VBox.margin>
                 </ComboBox>
                 <TableView fx:id="metadataTableView" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="metadataParameterColumn" editable="false" minWidth="100.0" prefWidth="125.0" sortable="false" text="Parameter name" />
-                        <TableColumn fx:id="metadataValueColumn" editable="false" minWidth="170.0" prefWidth="-1.0" sortable="false" text="Value" />
+                        <TableColumn fx:id="metadataParameterColumn" editable="false" minWidth="100.0" prefWidth="125.0"
+                                     sortable="false" text="Parameter name"/>
+                        <TableColumn fx:id="metadataValueColumn" editable="false" minWidth="170.0" prefWidth="-1.0"
+                                     sortable="false" text="Value"/>
                     </columns>
                 </TableView>
             </children>

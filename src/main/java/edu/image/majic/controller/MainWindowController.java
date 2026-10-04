@@ -11,6 +11,7 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.chart.AreaChart;
@@ -51,6 +52,10 @@ public class MainWindowController {
     private TextField erosionSizeField;
     @FXML
     private ComboBox<String> erosionShapeCombo;
+    @FXML
+    public TextField dilationSizeField;
+    @FXML
+    private ComboBox<String> dilationShapeCombo;
 
     @FXML
     private ImageView imageView;
@@ -96,26 +101,17 @@ public class MainWindowController {
             }
         });
 
-        TextFormatter<Integer> integerTextFormatter = getMaskSizeTextFormatter();
-
         erosionShapeCombo.getItems().addAll("Square", "Cross", "Ellipse", "Custom");
         erosionShapeCombo.getSelectionModel().selectFirst();
-        erosionSizeField.setTextFormatter(integerTextFormatter);
+        erosionSizeField.setTextFormatter(getMaskSizeTextFormatter());
+        dilationShapeCombo.getItems().addAll("Square", "Cross", "Ellipse", "Custom");
+        dilationShapeCombo.getSelectionModel().selectFirst();
+        dilationSizeField.setTextFormatter(getMaskSizeTextFormatter());
 
-        erosionShapeCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue.equals("Custom")) {
-                int size = Integer.parseInt(erosionSizeField.getText());
-                CustomMaskDialog dialog = new CustomMaskDialog(size, true);
-                Optional<Object> res = dialog.showAndWait();
-
-                if (res.isPresent()) {
-                    byte[] mask = (byte[]) res.get();
-                    imageModel.applyErosion(size, "Custom", mask);
-                    reloadImage();
-                }
-                Platform.runLater(() -> erosionShapeCombo.getSelectionModel().selectFirst());
-            }
-        });
+        erosionShapeCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
+            observeMorphologyComboBox(newValue, erosionSizeField, erosionShapeCombo));
+        dilationShapeCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
+            observeMorphologyComboBox(newValue, dilationSizeField, dilationShapeCombo));
 
         histogramChannelCombo.getItems().addAll("All (Luminance)",
 //                "All (Comparison)",
@@ -141,6 +137,21 @@ public class MainWindowController {
         });
         var tableItems = fillMetadataTableRows();
         metadataTableView.setItems(tableItems);
+    }
+
+    private void observeMorphologyComboBox(String newValue, TextField dilationSizeField, ComboBox<String> dilationShapeCombo) {
+        if (newValue.equals("Custom")) {
+            int size = Integer.parseInt(dilationSizeField.getText());
+            CustomMaskDialog dialog = new CustomMaskDialog(size, true);
+            Optional<Object> res = dialog.showAndWait();
+
+            if (res.isPresent()) {
+                byte[] mask = (byte[]) res.get();
+                imageModel.applyErosion(size, "Custom", mask);
+                reloadImage();
+            }
+            Platform.runLater(() -> dilationShapeCombo.getSelectionModel().selectFirst());
+        }
     }
 
     private TextFormatter<Integer> getMaskSizeTextFormatter() {
@@ -613,6 +624,13 @@ public class MainWindowController {
         int size = Integer.parseInt(erosionSizeField.getText());
         String mask = erosionShapeCombo.getSelectionModel().getSelectedItem();
         imageModel.applyErosion(size, mask, null);
+        reloadImage();
+    }
+
+    public void onDilationApply() {
+        int size = Integer.parseInt(dilationSizeField.getText());
+        String mask = dilationShapeCombo.getSelectionModel().getSelectedItem();
+        imageModel.applyDilation(size, mask, null);
         reloadImage();
     }
 }

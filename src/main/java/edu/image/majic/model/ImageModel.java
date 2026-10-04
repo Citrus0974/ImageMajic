@@ -93,7 +93,21 @@ public class ImageModel {
     }
 
     public void applyErosion(int size, String maskType, @Nullable byte[] customMask) {
-        if (currentMat == null || originalMat == null || originalMat.empty()) return;
+        Mat kernel = createKernel(size, maskType, customMask);
+        if (kernel == null) return;
+        Imgproc.erode(currentMat, currentMat, kernel);
+        System.out.println("applied erosion: " + size + ", " + maskType);
+    }
+
+    public void applyDilation(int size, String maskType, @Nullable byte[] customMask) {
+        Mat kernel = createKernel(size, maskType, customMask);
+        if (kernel == null) return;
+        Imgproc.dilate(currentMat, currentMat, kernel);
+        System.out.println("applied dilation: " + size + ", " + maskType);
+    }
+
+    private Mat createKernel(int size, String maskType, byte[] customMask) {
+        if (currentMat == null || originalMat == null || originalMat.empty()) return null;
         Mat kernel;
         if (customMask == null || customMask.length == 0) {
             int opencvShape;
@@ -108,7 +122,7 @@ public class ImageModel {
             kernel = new Mat(size, size, org.opencv.core.CvType.CV_8UC1);
             kernel.put(0, 0, customMask);
         }
-        Imgproc.erode(currentMat, currentMat, kernel);
-        System.out.println("applied erosion: " + size + ", " + maskType);
+        return kernel;
     }
+
 }

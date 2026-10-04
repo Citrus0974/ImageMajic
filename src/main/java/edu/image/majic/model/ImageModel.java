@@ -1,5 +1,6 @@
 package edu.image.majic.model;
 
+import com.drew.lang.annotations.Nullable;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
@@ -91,7 +92,7 @@ public class ImageModel {
         }
     }
 
-    public void applyErosion(int size, String maskType, byte[] customMask) {
+    public void applyErosion(int size, String maskType, @Nullable byte[] customMask) {
         if (currentMat == null || originalMat == null || originalMat.empty()) return;
         Mat kernel;
         if (customMask == null || customMask.length == 0) {
@@ -104,7 +105,8 @@ public class ImageModel {
             }
             kernel = Imgproc.getStructuringElement(opencvShape, new Size(size, size));
         } else {
-            kernel = new MatOfByte(customMask);
+            kernel = new Mat(size, size, org.opencv.core.CvType.CV_8UC1);
+            kernel.put(0, 0, customMask);
         }
         Imgproc.erode(currentMat, currentMat, kernel);
         System.out.println("applied erosion: " + size + ", " + maskType);

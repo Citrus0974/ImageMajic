@@ -3,13 +3,14 @@ package edu.image.majic.controller;
 import edu.image.majic.model.ImageModel;
 import edu.image.majic.util.ColorChannel;
 import edu.image.majic.util.ImageUtils;
+import edu.image.majic.view.CustomMaskDialog;
 import edu.image.majic.view.MetadataTableRow;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.chart.AreaChart;
@@ -34,6 +35,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.UnaryOperator;
 
 import static edu.image.majic.util.HistogramUtils.calculateHistogramChartSeries;
@@ -94,26 +96,26 @@ public class MainWindowController {
             }
         });
 
-        UnaryOperator<TextFormatter.Change> filter = change -> {
-            String newText = change.getControlNewText();
-            if (newText.isEmpty()) {
-                return change;
-            }
-            if (newText.matches("\\d+")) {
-                int value = Integer.parseInt(newText);
-                if (value >= 3 && value <= 15) {
-                    return change;
-                }
-            }
-            return null;
-        };
-        TextFormatter<Integer> integerTextFormatter = new TextFormatter<>(new IntegerStringConverter(), 3, filter);
+        TextFormatter<Integer> integerTextFormatter = getMaskSizeTextFormatter();
 
-        erosionShapeCombo.getItems().addAll("Square", "Cross", "Ellipse");
+        erosionShapeCombo.getItems().addAll("Square", "Cross", "Ellipse", "Custom");
         erosionShapeCombo.getSelectionModel().selectFirst();
         erosionSizeField.setTextFormatter(integerTextFormatter);
 
+        erosionShapeCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.equals("Custom")) {
+                int size = Integer.parseInt(erosionSizeField.getText());
+                CustomMaskDialog dialog = new CustomMaskDialog(size, true);
+                Optional<Object> res = dialog.showAndWait();
 
+                if (res.isPresent()) {
+                    byte[] mask = (byte[]) res.get();
+                    imageModel.applyErosion(size, "Custom", mask);
+                    reloadImage();
+                }
+                Platform.runLater(() -> erosionShapeCombo.getSelectionModel().selectFirst());
+            }
+        });
 
         histogramChannelCombo.getItems().addAll("All (Luminance)",
 //                "All (Comparison)",
@@ -139,6 +141,24 @@ public class MainWindowController {
         });
         var tableItems = fillMetadataTableRows();
         metadataTableView.setItems(tableItems);
+    }
+
+    private TextFormatter<Integer> getMaskSizeTextFormatter() {
+        UnaryOperator<TextFormatter.Change> filter = change -> {
+            String newText = change.getControlNewText();
+            if (newText.isEmpty()) {
+                return change;
+            }
+            if (newText.matches("\\d+")) {
+                int value = Integer.parseInt(newText);
+                if (value >= 3 && value <= 101) {
+                    return change;
+                }
+            }
+            return null;
+        };
+        TextFormatter<Integer> integerTextFormatter = new TextFormatter<>(new IntegerStringConverter(), 3, filter);
+        return integerTextFormatter;
     }
 
     @FXML
@@ -581,7 +601,7 @@ public class MainWindowController {
 
     private void resetUiControls(){
         erosionSizeField.setText("3");
-        erosionShapeCombo.getSelectionModel().select(0);
+        erosionShapeCombo.getSelectionModel().selectFirst();
     }
 
     public void onGrayscaleButton() {

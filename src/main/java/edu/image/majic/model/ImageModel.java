@@ -150,7 +150,7 @@ public class ImageModel {
 
 
     private Mat createKernel(int size, String maskType, byte[] customMask) {
-        if (currentMat == null || originalMat == null || originalMat.empty()) return null;
+        if (currentMat == null || originalMat == null || originalMat.empty() || size <= 0) return null;
         Mat kernel;
         if (customMask == null || customMask.length == 0) {
             int opencvShape;
@@ -171,11 +171,16 @@ public class ImageModel {
     public void applyGauss(int size, double sigma) {
         if (currentMat == null) return;
         if (size < 0 || sigma < 0 || (size != 0 && size % 2 == 0)) return;
-        
+
         if (size == 0) size = Math.toIntExact(Math.round(sigma * 3)) * 2 + 1;
         if (sigma == 0) sigma = 0.3 * (((size - 1.0) / 2.0) - 1.0) + 0.8;
         Imgproc.GaussianBlur(currentMat, currentMat, new Size(size, size), sigma);
         System.out.println("applied gaussian blur: " + size + ", sigma: " + sigma);
     }
 
+    public void applyMedianBlur(int size) {
+        if (currentMat == null || currentMat.empty() || size <= 0) return;
+        Imgproc.medianBlur(currentMat, currentMat, size);
+        System.out.println("applied median blur: " + size);
+    }
 }

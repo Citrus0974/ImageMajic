@@ -84,6 +84,8 @@ public class MainWindowController {
     private TextField gaussSizeField;
     @FXML
     private TextField gaussSigmaField;
+    @FXML
+    private TextField medianBlurSizeField;
 
     @FXML
     private ImageView imageView;
@@ -184,11 +186,28 @@ public class MainWindowController {
             }
             return null;
         }));
-
         gaussSigmaField.setTextFormatter(new TextFormatter<>(new DoubleStringConverter(), 1.0, change -> {
             String newText = change.getControlNewText();
             if (newText.matches("^$|^[0-9]*\\.?[0-9]*$")) {
                 return change;
+            }
+            return null;
+        }));
+        medianBlurSizeField.setTextFormatter(new TextFormatter<>(new IntegerStringConverter(), 7, change -> {
+            String newText = change.getControlNewText();
+            if (newText.isEmpty()) {
+                return change;
+            }
+            if (!newText.matches("\\d+")) {
+                return null;
+            }
+            try {
+                long value = Long.parseLong(newText);
+                if (value > 0 && value < 501 && value % 2 != 0) {
+                    return change;
+                }
+            } catch (NumberFormatException e) {
+                return null;
             }
             return null;
         }));
@@ -768,4 +787,9 @@ public class MainWindowController {
         reloadImage();
     }
 
+    public void onMedianBlurApply() {
+        int size = Integer.parseInt(medianBlurSizeField.getText());
+        imageModel.applyMedianBlur(size);
+        reloadImage();
+    }
 }

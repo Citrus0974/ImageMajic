@@ -174,6 +174,15 @@
                 </HBox>
                 <Separator/>
 
+                <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="Infinity" text="Median Blur"/>
+                <HBox alignment="CENTER" spacing="15.0">
+                    <Label text="Size"/>
+                    <TextField fx:id="medianBlurSizeField" prefWidth="40" promptText="7"/>
+                    <Button onAction="#onMedianBlurApply" text="Apply"/>
+
+                </HBox>
+                <Separator/>
+
 
                 <HBox spacing="20">
                     <Button maxWidth="Infinity" onAction="#onRotateLeft" text="Rotate left" HBox.hgrow="ALWAYS"/>

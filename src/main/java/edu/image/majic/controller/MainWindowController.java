@@ -23,6 +23,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
@@ -78,6 +79,11 @@ public class MainWindowController {
     public TextField blackHatSizeField;
     @FXML
     private ComboBox<String> blackHatShapeCombo;
+
+    @FXML
+    private TextField gaussSizeField;
+    @FXML
+    private TextField gaussSigmaField;
 
     @FXML
     private ImageView imageView;
@@ -145,7 +151,6 @@ public class MainWindowController {
         blackHatShapeCombo.getSelectionModel().selectFirst();
         blackHatSizeField.setTextFormatter(getMaskSizeTextFormatter());
 
-
         erosionShapeCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
                 observeMorphologyComboBox(newValue, erosionSizeField, erosionShapeCombo));
         dilationShapeCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
@@ -160,6 +165,33 @@ public class MainWindowController {
                 observeMorphologyComboBox(newValue, topHatSizeField, topHatShapeCombo));
         blackHatShapeCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
                 observeMorphologyComboBox(newValue, blackHatSizeField, blackHatShapeCombo));
+
+        gaussSizeField.setTextFormatter(new TextFormatter<>(new IntegerStringConverter(), 7, change -> {
+            String newText = change.getControlNewText();
+            if (newText.isEmpty() || newText.equals("0")) {
+                return change;
+            }
+            if (!newText.matches("\\d+")) {
+                return null;
+            }
+            try {
+                long value = Long.parseLong(newText);
+                if (value == 0 || (value > 0 && value % 2 != 0)) {
+                    return change;
+                }
+            } catch (NumberFormatException e) {
+                return null;
+            }
+            return null;
+        }));
+
+        gaussSigmaField.setTextFormatter(new TextFormatter<>(new DoubleStringConverter(), 1.0, change -> {
+            String newText = change.getControlNewText();
+            if (newText.matches("^$|^[0-9]*\\.?[0-9]*$")) {
+                return change;
+            }
+            return null;
+        }));
 
         histogramChannelCombo.getItems().addAll("All (Luminance)",
 //                "All (Comparison)",
@@ -684,36 +716,42 @@ public class MainWindowController {
         imageModel.applyErosion(size, mask, null);
         reloadImage();
     }
+
     public void onDilationApply() {
         int size = Integer.parseInt(dilationSizeField.getText());
         String mask = dilationShapeCombo.getSelectionModel().getSelectedItem();
         imageModel.applyDilation(size, mask, null);
         reloadImage();
     }
+
     public void onOpenApply() {
         int size = Integer.parseInt(openingSizeField.getText());
         String mask = openingShapeCombo.getSelectionModel().getSelectedItem();
         imageModel.applyOpening(size, mask, null);
         reloadImage();
     }
+
     public void onCloseApply() {
         int size = Integer.parseInt(closingSizeField.getText());
         String mask = closingShapeCombo.getSelectionModel().getSelectedItem();
         imageModel.applyClosing(size, mask, null);
         reloadImage();
     }
+
     public void onGradientApply() {
         int size = Integer.parseInt(gradientSizeField.getText());
         String mask = gradientShapeCombo.getSelectionModel().getSelectedItem();
         imageModel.applyGradient(size, mask, null);
         reloadImage();
     }
+
     public void onTopHatApply() {
         int size = Integer.parseInt(topHatSizeField.getText());
         String mask = topHatShapeCombo.getSelectionModel().getSelectedItem();
         imageModel.applyTopHat(size, mask, null);
         reloadImage();
     }
+
     public void onBlackHatApply() {
         int size = Integer.parseInt(blackHatSizeField.getText());
         String mask = blackHatShapeCombo.getSelectionModel().getSelectedItem();
@@ -721,5 +759,13 @@ public class MainWindowController {
         reloadImage();
     }
 
+
+    public void onGaussApply() {
+        int size = Integer.parseInt(gaussSizeField.getText());
+        if (size != 0 && size % 2 == 0 || size < 0) return;
+        double sigma = Double.parseDouble(gaussSigmaField.getText());
+        imageModel.applyGauss(size, sigma);
+        reloadImage();
+    }
 
 }

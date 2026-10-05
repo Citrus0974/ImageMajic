@@ -93,42 +93,55 @@ public class ImageModel {
     }
 
     public void applyErosion(int size, String maskType, @Nullable byte[] customMask) {
+        if (currentMat == null) return;
         Mat kernel = createKernel(size, maskType, customMask);
         if (kernel == null) return;
         Imgproc.erode(currentMat, currentMat, kernel);
         System.out.println("applied erosion: " + size + ", " + maskType);
     }
+
     public void applyDilation(int size, String maskType, @Nullable byte[] customMask) {
+        if (currentMat == null) return;
         Mat kernel = createKernel(size, maskType, customMask);
         if (kernel == null) return;
         Imgproc.dilate(currentMat, currentMat, kernel);
         System.out.println("applied dilation: " + size + ", " + maskType);
     }
+
     public void applyOpening(int size, String maskType, @Nullable byte[] customMask) {
+        if (currentMat == null) return;
         Mat kernel = createKernel(size, maskType, customMask);
         if (kernel == null) return;
         Imgproc.morphologyEx(currentMat, currentMat, Imgproc.MORPH_OPEN, kernel);
         System.out.println("applied open: " + size + ", " + maskType);
     }
+
     public void applyClosing(int size, String maskType, @Nullable byte[] customMask) {
+        if (currentMat == null) return;
         Mat kernel = createKernel(size, maskType, customMask);
         if (kernel == null) return;
         Imgproc.morphologyEx(currentMat, currentMat, Imgproc.MORPH_CLOSE, kernel);
         System.out.println("applied close: " + size + ", " + maskType);
     }
+
     public void applyGradient(int size, String maskType, @Nullable byte[] customMask) {
+        if (currentMat == null) return;
         Mat kernel = createKernel(size, maskType, customMask);
         if (kernel == null) return;
         Imgproc.morphologyEx(currentMat, currentMat, Imgproc.MORPH_GRADIENT, kernel);
         System.out.println("applied gradient: " + size + ", " + maskType);
     }
+
     public void applyTopHat(int size, String maskType, @Nullable byte[] customMask) {
+        if (currentMat == null) return;
         Mat kernel = createKernel(size, maskType, customMask);
         if (kernel == null) return;
         Imgproc.morphologyEx(currentMat, currentMat, Imgproc.MORPH_TOPHAT, kernel);
         System.out.println("applied top hat: " + size + ", " + maskType);
     }
+
     public void applyBlackHat(int size, String maskType, @Nullable byte[] customMask) {
+        if (currentMat == null) return;
         Mat kernel = createKernel(size, maskType, customMask);
         if (kernel == null) return;
         Imgproc.morphologyEx(currentMat, currentMat, Imgproc.MORPH_BLACKHAT, kernel);
@@ -153,6 +166,16 @@ public class ImageModel {
             kernel.put(0, 0, customMask);
         }
         return kernel;
+    }
+
+    public void applyGauss(int size, double sigma) {
+        if (currentMat == null) return;
+        if (size < 0 || sigma < 0 || (size != 0 && size % 2 == 0)) return;
+        
+        if (size == 0) size = Math.toIntExact(Math.round(sigma * 3)) * 2 + 1;
+        if (sigma == 0) sigma = 0.3 * (((size - 1.0) / 2.0) - 1.0) + 0.8;
+        Imgproc.GaussianBlur(currentMat, currentMat, new Size(size, size), sigma);
+        System.out.println("applied gaussian blur: " + size + ", sigma: " + sigma);
     }
 
 }

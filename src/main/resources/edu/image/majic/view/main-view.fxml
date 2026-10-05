@@ -82,6 +82,17 @@
 
                 <Separator/>
 
+
+                <HBox spacing="20.0">
+                    <Button fx:id="resetButton" maxWidth="Infinity" onAction="#onResetAll" text="Reset all"
+                            HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS"/>
+                    <VBox.margin>
+                        <Insets left="40.0" right="40.0"/>
+                    </VBox.margin>
+                </HBox>
+
+                <Separator/>
+
                 <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="Infinity" text="Erosion"/>
                 <HBox alignment="CENTER" spacing="15.0">
                     <Label text="Size"/>
@@ -152,16 +163,17 @@
                 </HBox>
                 <Separator/>
 
+                <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="Infinity" text="Gaussian Blur"/>
+                <HBox alignment="CENTER" spacing="15.0">
+                    <Label text="Size"/>
+                    <TextField fx:id="gaussSizeField" prefWidth="40" promptText="7"/>
+                    <Label text="Sigma"/>
+                    <TextField fx:id="gaussSigmaField" prefWidth="40" promptText="1.0"/>
+                    <Button onAction="#onGaussApply" text="Apply"/>
 
-                <HBox spacing="20.0">
-                    <Button fx:id="resetButton" maxWidth="Infinity" onAction="#onResetAll" text="Reset all"
-                            HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS"/>
-                    <VBox.margin>
-                        <Insets left="40.0" right="40.0"/>
-                    </VBox.margin>
                 </HBox>
-
                 <Separator/>
+
 
                 <HBox spacing="20">
                     <Button maxWidth="Infinity" onAction="#onRotateLeft" text="Rotate left" HBox.hgrow="ALWAYS"/>

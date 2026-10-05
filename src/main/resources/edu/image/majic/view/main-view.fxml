@@ -220,6 +220,15 @@
                 </HBox>
                 <Separator/>
 
+                <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="Infinity" text="Custom Filter"/>
+                <HBox alignment="CENTER" spacing="15.0">
+                    <Label text="Size"/>
+                    <TextField fx:id="customFilterSizeField" prefWidth="40" promptText="3"/>
+                    <ComboBox fx:id="customFilterNormalizationCombo" prefWidth="150"/>
+                    <Button onAction="#onCustomFilterSet" text="Set"/>
+
+                </HBox>
+                <Separator/>
 
                 <HBox spacing="20">
                     <Button maxWidth="Infinity" onAction="#onRotateLeft" text="Rotate left" HBox.hgrow="ALWAYS"/>

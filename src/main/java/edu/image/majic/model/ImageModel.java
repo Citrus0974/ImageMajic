@@ -284,4 +284,26 @@ public class ImageModel {
         kernel.release();
         System.out.println("applied emboss: " +size);
     }
+
+
+    public void applyCustomFilter(int size, double[] kernel, boolean shouldNormalize) {
+        if (currentMat == null || currentMat.empty() || size <= 0 || kernel == null || kernel.length == 0) return;
+        if (shouldNormalize) {
+            double sum = 0;
+            for (double b : kernel) {
+                sum += b;
+            }
+            if (Math.abs(sum) > 0.00001) {
+                for (int i = 0; i < kernel.length; i++) {
+                    kernel[i] = kernel[i] / sum;
+                }
+            }
+            System.out.println("normalize sum: " + sum);
+        }
+        Mat kernelMat = new Mat(size, size, CvType.CV_32FC1);
+        kernelMat.put(0, 0, kernel);
+        Imgproc.filter2D(currentMat, currentMat, -1, kernelMat);
+        kernelMat.release();
+        System.out.println("applied custom filter " + Arrays.toString(kernel) + ", " + size);
+    }
 }

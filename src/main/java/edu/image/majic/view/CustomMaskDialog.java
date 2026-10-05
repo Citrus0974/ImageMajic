@@ -7,6 +7,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Pattern;
 
 public class CustomMaskDialog extends Dialog<Object> {
     private final int size;
@@ -60,16 +62,20 @@ public class CustomMaskDialog extends Dialog<Object> {
         doubleResult = new double[size * size];
         Arrays.fill(doubleResult, 0.0);
         TextField[] fields = new TextField[size * size];
-
+        Pattern regex = Pattern.compile("-?\\d*(\\.\\d*)?");
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
                 int index = row * size + col;
                 TextField textField = new TextField("0.0");
-                textField.setPrefSize(20, 20);
+                textField.setPrefSize(35, 35);
+                AtomicBoolean isUpdating = new AtomicBoolean(false);
                 textField.textProperty().addListener((observable, oldValue, newValue) -> {
-                   if(!newValue.matches("-?\\\\d*(\\\\.\\\\d*)?")) {
-                       textField.setText(oldValue);
-                   }
+                    if (isUpdating.get()) return;
+                    if (regex.matcher(newValue).matches()) {
+                        isUpdating.set(true);
+                        textField.setText(newValue);
+                        isUpdating.set(false);
+                    }
                 });
                 fields[index] = textField;
                 grid.add(textField, col, row);
@@ -77,8 +83,8 @@ public class CustomMaskDialog extends Dialog<Object> {
         }
 
         this.setOnCloseRequest(event -> {
-            if(getResult() != null) { // "Apply" pressed
-                for (int i=0; i<fields.length; i++) {
+            if (getResult() != null) { // "Apply" pressed
+                for (int i = 0; i < fields.length; i++) {
                     try {
                         doubleResult[i] = Double.parseDouble(fields[i].getText());
                     } catch (NumberFormatException e) {
@@ -93,7 +99,7 @@ public class CustomMaskDialog extends Dialog<Object> {
         byteResult = new byte[size * size];
         Arrays.fill(byteResult, (byte) 0);
         for (int row = 0; row < size; row++) {
-            for (int col = 0; col < size; col++){
+            for (int col = 0; col < size; col++) {
                 int index = row * size + col;
                 ToggleButton cell = new ToggleButton("0");
                 cell.setSelected(false);
@@ -101,7 +107,7 @@ public class CustomMaskDialog extends Dialog<Object> {
                 cell.setStyle("-fx-background-color: white; -fx-text-fill: black;");
 
                 cell.selectedProperty().addListener(((observable, oldValue, newValue) -> {
-                    if(newValue){
+                    if (newValue) {
                         cell.setText("1");
                         cell.setStyle("-fx-background-color: black; -fx-text-fill: white;");
                         byteResult[index] = 1;

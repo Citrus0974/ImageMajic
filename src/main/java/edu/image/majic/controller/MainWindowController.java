@@ -3,6 +3,7 @@ package edu.image.majic.controller;
 import edu.image.majic.model.ImageModel;
 import edu.image.majic.util.ColorChannel;
 import edu.image.majic.util.ImageUtils;
+import edu.image.majic.util.TriConsumer;
 import edu.image.majic.view.CustomMaskDialog;
 import edu.image.majic.view.MetadataTableRow;
 import javafx.application.Platform;
@@ -37,6 +38,9 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 import static edu.image.majic.util.HistogramUtils.calculateHistogramChartSeries;
@@ -96,6 +100,10 @@ public class MainWindowController {
     private TextField sharpenSoftSizeField;
     @FXML
     private TextField embossSizeField;
+    @FXML
+    private TextField customFilterSizeField;
+    @FXML
+    private ComboBox<String> customFilterNormalizationCombo;
 
     @FXML
     private ImageView imageView;
@@ -164,19 +172,19 @@ public class MainWindowController {
         blackHatSizeField.setTextFormatter(getDefaultKernelSizeTextFormatter());
 
         erosionShapeCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
-                observeMorphologyComboBox(newValue, erosionSizeField, erosionShapeCombo));
+                observeMorphologyComboBox(newValue, erosionSizeField, erosionShapeCombo, imageModel::applyErosion));
         dilationShapeCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
-                observeMorphologyComboBox(newValue, dilationSizeField, dilationShapeCombo));
+                observeMorphologyComboBox(newValue, dilationSizeField, dilationShapeCombo, imageModel::applyDilation));
         openingShapeCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
-                observeMorphologyComboBox(newValue, openingSizeField, openingShapeCombo));
+                observeMorphologyComboBox(newValue, openingSizeField, openingShapeCombo, imageModel::applyOpening));
         closingShapeCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
-                observeMorphologyComboBox(newValue, closingSizeField, closingShapeCombo));
+                observeMorphologyComboBox(newValue, closingSizeField, closingShapeCombo, imageModel::applyClosing));
         gradientShapeCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
-                observeMorphologyComboBox(newValue, gradientSizeField, gradientShapeCombo));
+                observeMorphologyComboBox(newValue, gradientSizeField, gradientShapeCombo, imageModel::applyGradient));
         topHatShapeCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
-                observeMorphologyComboBox(newValue, topHatSizeField, topHatShapeCombo));
+                observeMorphologyComboBox(newValue, topHatSizeField, topHatShapeCombo, imageModel::applyTopHat));
         blackHatShapeCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
-                observeMorphologyComboBox(newValue, blackHatSizeField, blackHatShapeCombo));
+                observeMorphologyComboBox(newValue, blackHatSizeField, blackHatShapeCombo, imageModel::applyBlackHat));
 
         gaussSizeField.setTextFormatter(new TextFormatter<>(new IntegerStringConverter(), 7, change -> {
             String newText = change.getControlNewText();
@@ -210,6 +218,9 @@ public class MainWindowController {
         sharpenSizeField.setTextFormatter(getOddNumberKernelSizeTextFormatter());
         sharpenSoftSizeField.setTextFormatter(getOddNumberKernelSizeTextFormatter());
         embossSizeField.setTextFormatter(getOddNumberKernelSizeTextFormatter());
+        customFilterSizeField.setTextFormatter(getDefaultKernelSizeTextFormatter());
+        customFilterNormalizationCombo.getItems().addAll("Don't normalize", "Normalize");
+        customFilterNormalizationCombo.getSelectionModel().selectFirst();
 
         histogramChannelCombo.getItems().addAll("All (Luminance)",
 //                "All (Comparison)",
@@ -259,18 +270,18 @@ public class MainWindowController {
         });
     }
 
-    private void observeMorphologyComboBox(String newValue, TextField dilationSizeField, ComboBox<String> dilationShapeCombo) {
+    private void observeMorphologyComboBox(String newValue, TextField sizeField, ComboBox<String> shapeCombo, TriConsumer<Integer, String, byte[]> imageModelMethod) {
         if (newValue.equals("Custom")) {
-            int size = Integer.parseInt(dilationSizeField.getText());
+            int size = Integer.parseInt(sizeField.getText());
             CustomMaskDialog dialog = new CustomMaskDialog(size, true);
             Optional<Object> res = dialog.showAndWait();
 
             if (res.isPresent()) {
                 byte[] mask = (byte[]) res.get();
-                imageModel.applyErosion(size, "Custom", mask);
+                imageModelMethod.accept(size, "Custom", mask);
                 reloadImage();
             }
-            Platform.runLater(() -> dilationShapeCombo.getSelectionModel().selectFirst());
+            Platform.runLater(() -> shapeCombo.getSelectionModel().selectFirst());
         }
     }
 
@@ -834,5 +845,19 @@ public class MainWindowController {
         int size = Integer.parseInt(embossSizeField.getText());
         imageModel.applyEmboss(size);
         reloadImage();
+    }
+
+    public void onCustomFilterSet() {
+        int size = Integer.parseInt(customFilterSizeField.getText());
+        boolean normalize = customFilterNormalizationCombo.getSelectionModel().getSelectedItem().equals("Normalize");
+
+        CustomMaskDialog dialog = new CustomMaskDialog(size, false);
+        Optional<Object> res = dialog.showAndWait();
+        if (res.isPresent()) {
+            double[] kernel = (double[]) res.get();
+            imageModel.applyCustomFilter(size, kernel, normalize);
+            reloadImage();
+        }
+        Platform.runLater(() -> dilationShapeCombo.getSelectionModel().selectFirst());
     }
 }

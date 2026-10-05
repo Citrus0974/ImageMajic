@@ -8,6 +8,7 @@ import org.opencv.imgproc.Imgproc;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Arrays;
 
 public class ImageModel {
     private Mat originalMat;
@@ -201,17 +202,17 @@ public class ImageModel {
             }
             case "Horizontal" -> {
                 for (int i = 0; i < size; i++) {
-                    kernel.put(size/2, i, value);
+                    kernel.put(size / 2, i, value);
                 }
             }
             case "Vertical" -> {
                 for (int i = 0; i < size; i++) {
-                    kernel.put(i, size/2, value);
+                    kernel.put(i, size / 2, value);
                 }
             }
             case "Diagonal (Reversed)" -> {
                 for (int i = 0; i < size; i++) {
-                    kernel.put(size-1-i, i, value);
+                    kernel.put(size - 1 - i, i, value);
                 }
             }
         }
@@ -219,5 +220,68 @@ public class ImageModel {
         Imgproc.filter2D(currentMat, currentMat, -1, kernel);
         kernel.release();
         System.out.println("applied motion blur: " + size);
+    }
+
+    public void applySharpen(int size) {
+        if (currentMat == null || currentMat.empty() || size <= 0 || size % 2 == 0) return;
+        Mat kernel = new Mat(size, size, CvType.CV_32FC1);
+        float[] data = new float[size * size];
+        Arrays.fill(data, -1.0f);
+        int center = (size * size) / 2;
+        data[center] = size * size;
+        kernel.put(0, 0, data);
+
+        Imgproc.filter2D(currentMat, currentMat, -1, kernel);
+        kernel.release();
+        System.out.println("applied sharpen: " + size);
+    }
+
+    public void applySharpen2(int size) {
+        if (currentMat == null || currentMat.empty() || size <= 0 || size % 2 == 0) return;
+        Mat kernel = new Mat(size, size, CvType.CV_32FC1);
+        float[] data = new float[size * size];
+        int center = size / 2;
+
+        float sumNeighbors = 0;
+        float strength = 0.1f;
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                int index = row * size + col;
+                if (row == center && col == center) continue;
+                float dist = (float) (Math.pow(row - center, 2) + Math.pow(col - center, 2));
+                data[index] = (float) (-strength / (1.0 + dist));
+                sumNeighbors += data[index];
+            }
+        }
+
+        data[center * size + center] = 1.0f - sumNeighbors;
+        kernel.put(0, 0, data);
+        Imgproc.filter2D(currentMat, currentMat, -1, kernel);
+        kernel.release();
+        System.out.println("applied soft sharpen: " + size + ", " + strength + ", " + center + ", " + sumNeighbors);
+    }
+
+    public void applyEmboss(int size) {
+        if (currentMat == null || currentMat.empty() || size <= 0 || size % 2 == 0) return;
+        Mat kernel = new Mat(size, size, CvType.CV_32FC1);
+        float[] data = new float[size * size];
+        int center = size / 2;
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                int index = row * size + col;
+                if (row < center && col < center) {
+                    data[index] = -1.0f; // shadow
+                } else if (row > center && col > center) {
+                    data[index] = 1.0f;  // highlight
+                } else {
+                    data[index] = 0.0f;  // plain
+                }
+            }
+        }
+        data[(size * size) / 2] = 1.0f;
+        kernel.put(0, 0, data);
+        Imgproc.filter2D(currentMat, currentMat, -1, kernel);
+        kernel.release();
+        System.out.println("applied emboss: " +size);
     }
 }

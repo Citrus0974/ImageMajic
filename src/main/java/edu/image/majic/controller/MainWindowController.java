@@ -90,6 +90,12 @@ public class MainWindowController {
     private TextField motionBlurSizeField;
     @FXML
     private ComboBox<String> motionBlurDirectionCombo;
+    @FXML
+    private TextField sharpenSizeField;
+    @FXML
+    private TextField sharpenSoftSizeField;
+    @FXML
+    private TextField embossSizeField;
 
     @FXML
     private ImageView imageView;
@@ -201,6 +207,9 @@ public class MainWindowController {
         motionBlurSizeField.setTextFormatter(getDefaultKernelSizeTextFormatter());
         motionBlurDirectionCombo.getItems().addAll("Diagonal", "Horizontal", "Vertical", "Diagonal (Reversed)");
         motionBlurDirectionCombo.getSelectionModel().selectFirst();
+        sharpenSizeField.setTextFormatter(getOddNumberKernelSizeTextFormatter());
+        sharpenSoftSizeField.setTextFormatter(getOddNumberKernelSizeTextFormatter());
+        embossSizeField.setTextFormatter(getOddNumberKernelSizeTextFormatter());
 
         histogramChannelCombo.getItems().addAll("All (Luminance)",
 //                "All (Comparison)",
@@ -229,7 +238,7 @@ public class MainWindowController {
         metadataTableView.setItems(tableItems);
     }
 
-    private static TextFormatter<Integer> getOddNumberKernelSizeTextFormatter() {
+    private TextFormatter<Integer> getOddNumberKernelSizeTextFormatter() {
         return new TextFormatter<>(new IntegerStringConverter(), 7, change -> {
             String newText = change.getControlNewText();
             if (newText.isEmpty()) {
@@ -806,6 +815,24 @@ public class MainWindowController {
     public void onMotionBlurApply() {
         int size = Integer.parseInt(motionBlurSizeField.getText());
         imageModel.applyMotionBlur(size, motionBlurDirectionCombo.getSelectionModel().getSelectedItem());
+        reloadImage();
+    }
+
+    public void onSharpenApply() {
+        int size = Integer.parseInt(sharpenSizeField.getText());
+        imageModel.applySharpen(size);
+        reloadImage();
+    }
+
+    public void onSharpenSoftApply() {
+        int size = Integer.parseInt(sharpenSoftSizeField.getText());
+        imageModel.applySharpen2(size);
+        reloadImage();
+    }
+
+    public void onEmbossApply() {
+        int size = Integer.parseInt(embossSizeField.getText());
+        imageModel.applyEmboss(size);
         reloadImage();
     }
 }

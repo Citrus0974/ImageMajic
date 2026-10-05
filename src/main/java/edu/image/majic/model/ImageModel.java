@@ -1,10 +1,7 @@
 package edu.image.majic.model;
 
 import com.drew.lang.annotations.Nullable;
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
-import org.opencv.core.Size;
+import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
@@ -98,6 +95,7 @@ public class ImageModel {
         if (kernel == null) return;
         Imgproc.erode(currentMat, currentMat, kernel);
         System.out.println("applied erosion: " + size + ", " + maskType);
+        kernel.release();
     }
 
     public void applyDilation(int size, String maskType, @Nullable byte[] customMask) {
@@ -106,6 +104,7 @@ public class ImageModel {
         if (kernel == null) return;
         Imgproc.dilate(currentMat, currentMat, kernel);
         System.out.println("applied dilation: " + size + ", " + maskType);
+        kernel.release();
     }
 
     public void applyOpening(int size, String maskType, @Nullable byte[] customMask) {
@@ -114,6 +113,7 @@ public class ImageModel {
         if (kernel == null) return;
         Imgproc.morphologyEx(currentMat, currentMat, Imgproc.MORPH_OPEN, kernel);
         System.out.println("applied open: " + size + ", " + maskType);
+        kernel.release();
     }
 
     public void applyClosing(int size, String maskType, @Nullable byte[] customMask) {
@@ -122,6 +122,7 @@ public class ImageModel {
         if (kernel == null) return;
         Imgproc.morphologyEx(currentMat, currentMat, Imgproc.MORPH_CLOSE, kernel);
         System.out.println("applied close: " + size + ", " + maskType);
+        kernel.release();
     }
 
     public void applyGradient(int size, String maskType, @Nullable byte[] customMask) {
@@ -130,6 +131,7 @@ public class ImageModel {
         if (kernel == null) return;
         Imgproc.morphologyEx(currentMat, currentMat, Imgproc.MORPH_GRADIENT, kernel);
         System.out.println("applied gradient: " + size + ", " + maskType);
+        kernel.release();
     }
 
     public void applyTopHat(int size, String maskType, @Nullable byte[] customMask) {
@@ -138,6 +140,7 @@ public class ImageModel {
         if (kernel == null) return;
         Imgproc.morphologyEx(currentMat, currentMat, Imgproc.MORPH_TOPHAT, kernel);
         System.out.println("applied top hat: " + size + ", " + maskType);
+        kernel.release();
     }
 
     public void applyBlackHat(int size, String maskType, @Nullable byte[] customMask) {
@@ -146,6 +149,7 @@ public class ImageModel {
         if (kernel == null) return;
         Imgproc.morphologyEx(currentMat, currentMat, Imgproc.MORPH_BLACKHAT, kernel);
         System.out.println("applied black hat: " + size + ", " + maskType);
+        kernel.release();
     }
 
 
@@ -182,5 +186,38 @@ public class ImageModel {
         if (currentMat == null || currentMat.empty() || size <= 0) return;
         Imgproc.medianBlur(currentMat, currentMat, size);
         System.out.println("applied median blur: " + size);
+    }
+
+    public void applyMotionBlur(int size, String direction) {
+        if (currentMat == null || currentMat.empty() || size <= 0) return;
+        Mat kernel = Mat.zeros(size, size, CvType.CV_32FC1);
+        float value = 1.0f / size;
+
+        switch (direction) {
+            case "Diagonal" -> {
+                for (int i = 0; i < size; i++) {
+                    kernel.put(i, i, value);
+                }
+            }
+            case "Horizontal" -> {
+                for (int i = 0; i < size; i++) {
+                    kernel.put(size/2, i, value);
+                }
+            }
+            case "Vertical" -> {
+                for (int i = 0; i < size; i++) {
+                    kernel.put(i, size/2, value);
+                }
+            }
+            case "Diagonal (Reversed)" -> {
+                for (int i = 0; i < size; i++) {
+                    kernel.put(size-1-i, i, value);
+                }
+            }
+        }
+
+        Imgproc.filter2D(currentMat, currentMat, -1, kernel);
+        kernel.release();
+        System.out.println("applied motion blur: " + size);
     }
 }

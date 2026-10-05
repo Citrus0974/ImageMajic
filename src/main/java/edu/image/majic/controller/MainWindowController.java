@@ -86,6 +86,10 @@ public class MainWindowController {
     private TextField gaussSigmaField;
     @FXML
     private TextField medianBlurSizeField;
+    @FXML
+    private TextField motionBlurSizeField;
+    @FXML
+    private ComboBox<String> motionBlurDirectionCombo;
 
     @FXML
     private ImageView imageView;
@@ -133,25 +137,25 @@ public class MainWindowController {
 
         erosionShapeCombo.getItems().addAll("Square", "Cross", "Ellipse", "Custom");
         erosionShapeCombo.getSelectionModel().selectFirst();
-        erosionSizeField.setTextFormatter(getMaskSizeTextFormatter());
+        erosionSizeField.setTextFormatter(getDefaultKernelSizeTextFormatter());
         dilationShapeCombo.getItems().addAll("Square", "Cross", "Ellipse", "Custom");
         dilationShapeCombo.getSelectionModel().selectFirst();
-        dilationSizeField.setTextFormatter(getMaskSizeTextFormatter());
+        dilationSizeField.setTextFormatter(getDefaultKernelSizeTextFormatter());
         openingShapeCombo.getItems().addAll("Square", "Cross", "Ellipse", "Custom");
         openingShapeCombo.getSelectionModel().selectFirst();
-        openingSizeField.setTextFormatter(getMaskSizeTextFormatter());
+        openingSizeField.setTextFormatter(getDefaultKernelSizeTextFormatter());
         closingShapeCombo.getItems().addAll("Square", "Cross", "Ellipse", "Custom");
         closingShapeCombo.getSelectionModel().selectFirst();
-        closingSizeField.setTextFormatter(getMaskSizeTextFormatter());
+        closingSizeField.setTextFormatter(getDefaultKernelSizeTextFormatter());
         gradientShapeCombo.getItems().addAll("Square", "Cross", "Ellipse", "Custom");
         gradientShapeCombo.getSelectionModel().selectFirst();
-        gradientSizeField.setTextFormatter(getMaskSizeTextFormatter());
+        gradientSizeField.setTextFormatter(getDefaultKernelSizeTextFormatter());
         topHatShapeCombo.getItems().addAll("Square", "Cross", "Ellipse", "Custom");
         topHatShapeCombo.getSelectionModel().selectFirst();
-        topHatSizeField.setTextFormatter(getMaskSizeTextFormatter());
+        topHatSizeField.setTextFormatter(getDefaultKernelSizeTextFormatter());
         blackHatShapeCombo.getItems().addAll("Square", "Cross", "Ellipse", "Custom");
         blackHatShapeCombo.getSelectionModel().selectFirst();
-        blackHatSizeField.setTextFormatter(getMaskSizeTextFormatter());
+        blackHatSizeField.setTextFormatter(getDefaultKernelSizeTextFormatter());
 
         erosionShapeCombo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
                 observeMorphologyComboBox(newValue, erosionSizeField, erosionShapeCombo));
@@ -193,24 +197,10 @@ public class MainWindowController {
             }
             return null;
         }));
-        medianBlurSizeField.setTextFormatter(new TextFormatter<>(new IntegerStringConverter(), 7, change -> {
-            String newText = change.getControlNewText();
-            if (newText.isEmpty()) {
-                return change;
-            }
-            if (!newText.matches("\\d+")) {
-                return null;
-            }
-            try {
-                long value = Long.parseLong(newText);
-                if (value > 0 && value < 501 && value % 2 != 0) {
-                    return change;
-                }
-            } catch (NumberFormatException e) {
-                return null;
-            }
-            return null;
-        }));
+        medianBlurSizeField.setTextFormatter(getOddNumberKernelSizeTextFormatter());
+        motionBlurSizeField.setTextFormatter(getDefaultKernelSizeTextFormatter());
+        motionBlurDirectionCombo.getItems().addAll("Diagonal", "Horizontal", "Vertical", "Diagonal (Reversed)");
+        motionBlurDirectionCombo.getSelectionModel().selectFirst();
 
         histogramChannelCombo.getItems().addAll("All (Luminance)",
 //                "All (Comparison)",
@@ -239,6 +229,27 @@ public class MainWindowController {
         metadataTableView.setItems(tableItems);
     }
 
+    private static TextFormatter<Integer> getOddNumberKernelSizeTextFormatter() {
+        return new TextFormatter<>(new IntegerStringConverter(), 7, change -> {
+            String newText = change.getControlNewText();
+            if (newText.isEmpty()) {
+                return change;
+            }
+            if (!newText.matches("\\d+")) {
+                return null;
+            }
+            try {
+                long value = Long.parseLong(newText);
+                if (value > 0 && value < 501 && value % 2 != 0) {
+                    return change;
+                }
+            } catch (NumberFormatException e) {
+                return null;
+            }
+            return null;
+        });
+    }
+
     private void observeMorphologyComboBox(String newValue, TextField dilationSizeField, ComboBox<String> dilationShapeCombo) {
         if (newValue.equals("Custom")) {
             int size = Integer.parseInt(dilationSizeField.getText());
@@ -254,7 +265,7 @@ public class MainWindowController {
         }
     }
 
-    private TextFormatter<Integer> getMaskSizeTextFormatter() {
+    private TextFormatter<Integer> getDefaultKernelSizeTextFormatter() {
         UnaryOperator<TextFormatter.Change> filter = change -> {
             String newText = change.getControlNewText();
             if (newText.isEmpty()) {
@@ -781,7 +792,6 @@ public class MainWindowController {
 
     public void onGaussApply() {
         int size = Integer.parseInt(gaussSizeField.getText());
-        if (size != 0 && size % 2 == 0 || size < 0) return;
         double sigma = Double.parseDouble(gaussSigmaField.getText());
         imageModel.applyGauss(size, sigma);
         reloadImage();
@@ -790,6 +800,12 @@ public class MainWindowController {
     public void onMedianBlurApply() {
         int size = Integer.parseInt(medianBlurSizeField.getText());
         imageModel.applyMedianBlur(size);
+        reloadImage();
+    }
+
+    public void onMotionBlurApply() {
+        int size = Integer.parseInt(motionBlurSizeField.getText());
+        imageModel.applyMotionBlur(size, motionBlurDirectionCombo.getSelectionModel().getSelectedItem());
         reloadImage();
     }
 }

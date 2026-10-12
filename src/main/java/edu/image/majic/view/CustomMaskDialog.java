@@ -5,6 +5,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Screen;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -30,8 +31,8 @@ public class CustomMaskDialog extends Dialog<Object> {
 
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
-        grid.setHgap(4);
-        grid.setVgap(4);
+        grid.setHgap(1);
+        grid.setVgap(1);
         grid.setPadding(new Insets(10));
 
         if (isMorphology) {
@@ -40,9 +41,17 @@ public class CustomMaskDialog extends Dialog<Object> {
             setupConvolutionGrid(grid);
         }
 
-        VBox content = new VBox(10, grid);
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setContent(grid);
+
+        VBox content = new VBox(10, scrollPane);
         content.setAlignment(Pos.CENTER);
         getDialogPane().setContent(content);
+
+        double maxHeight = Screen.getPrimary().getVisualBounds().getHeight() * 0.8;
+        getDialogPane().setMaxHeight(maxHeight);
+        double maxWidth = Screen.getPrimary().getVisualBounds().getWidth() * 0.8;
+        getDialogPane().setMaxWidth(maxWidth);
 
         setResultConverter(dialogButton -> {
             if (dialogButton == applyButtonType) {

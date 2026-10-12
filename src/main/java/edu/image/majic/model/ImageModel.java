@@ -219,7 +219,7 @@ public class ImageModel {
 
         Imgproc.filter2D(currentMat, currentMat, -1, kernel);
         kernel.release();
-        System.out.println("applied motion blur: " + size);
+        System.out.println("applied motion blur: " + size + ", " + direction);
     }
 
     public void applySharpen(int size) {

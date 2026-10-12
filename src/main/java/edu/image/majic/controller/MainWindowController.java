@@ -260,7 +260,7 @@ public class MainWindowController {
             }
             try {
                 long value = Long.parseLong(newText);
-                if (value > 0 && value < 501 && value % 2 != 0) {
+                if (value >= 1 && value <= 1001 && value % 2 != 0) {
                     return change;
                 }
             } catch (NumberFormatException e) {
@@ -293,14 +293,13 @@ public class MainWindowController {
             }
             if (newText.matches("\\d+")) {
                 int value = Integer.parseInt(newText);
-                if (value >= 1 && value <= 101) {
+                if (value >= 1 && value <= 1001) {
                     return change;
                 }
             }
             return null;
         };
-        TextFormatter<Integer> integerTextFormatter = new TextFormatter<>(new IntegerStringConverter(), 3, filter);
-        return integerTextFormatter;
+        return new TextFormatter<>(new IntegerStringConverter(), 3, filter);
     }
 
     @FXML

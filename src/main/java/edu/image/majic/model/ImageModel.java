@@ -1,10 +1,7 @@
 package edu.image.majic.model;
 
 import com.drew.lang.annotations.Nullable;
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
-import org.opencv.core.Size;
+import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
@@ -105,5 +102,79 @@ public class ImageModel {
         Imgproc.morphologyEx(currentMat, currentMat, Imgproc.MORPH_GRADIENT, kernel);
         System.out.println("applied gradient: " + xSize + "x" + ySize + ", " + maskType);
         kernel.release();
+    }
+
+    public void applySobel(int size, String direction) {
+        if (currentMat == null) return;
+        int dx, dy;
+        boolean both = false;
+        switch (direction) {
+            case "Horizontal" -> {
+                dx = 0;
+                dy = 1;
+            }
+            case "Vertical" -> {
+                dx = 1;
+                dy = 0;
+            }
+            case "Both" -> {
+                dx = 0;
+                dy = 1;
+                both = true;
+            }
+            default -> {
+                dx = 0;
+                dy = 1;
+            }
+        }
+
+        Mat newMat = new Mat();
+        Imgproc.Sobel(currentMat, newMat, CvType.CV_16S, dx, dy, size);
+        if (both) {
+            Mat mat2 = new Mat();
+            Imgproc.Sobel(currentMat, mat2, CvType.CV_16S, dy, dx, size);
+            Core.addWeighted(newMat, 0.5, mat2, 0.5, 0.0, newMat);
+            mat2.release();
+        }
+        Core.convertScaleAbs(newMat, currentMat);
+        System.out.println("Applied Sobel filter: " + size + " " + direction);
+        newMat.release();
+    }
+
+    public void applyScharr(String direction) {
+        if (currentMat == null) return;
+        int dx, dy;
+        boolean both = false;
+        switch (direction) {
+            case "Horizontal" -> {
+                dx = 0;
+                dy = 1;
+            }
+            case "Vertical" -> {
+                dx = 1;
+                dy = 0;
+            }
+            case "Both" -> {
+                dx = 0;
+                dy = 1;
+                both = true;
+            }
+            default -> {
+                dx = 0;
+                dy = 1;
+            }
+        }
+
+        Mat newMat = new Mat();
+        Imgproc.Scharr(currentMat, newMat, CvType.CV_16S, dx, dy);
+        if (both) {
+            Mat mat2 = new Mat();
+            Imgproc.Sobel(currentMat, mat2, CvType.CV_16S, dy, dx);
+            Core.addWeighted(newMat, 0.5, mat2, 0.5, 0.0, newMat);
+            mat2.release();
+        }
+        Core.convertScaleAbs(newMat, currentMat);
+        System.out.println("Applied Sobel filter: " + direction);
+        newMat.release();
     }
 }

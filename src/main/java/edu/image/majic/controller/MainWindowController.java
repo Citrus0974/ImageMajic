@@ -9,6 +9,7 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.chart.AreaChart;
@@ -43,6 +44,7 @@ import static edu.image.majic.util.MetadataUtils.fillImageMetadataHashmap;
 
 public class MainWindowController {
 
+
     @FXML
     private Label scaleLabel;
     @FXML
@@ -53,12 +55,20 @@ public class MainWindowController {
     @FXML
     public TextField gradientSizeFieldY;
     @FXML
+    private TextField sobelKernelSize;
+    @FXML
+    private ComboBox<String> sobelDirectionCombo;
+    @FXML
     private ComboBox<String> gradientShapeCombo;
+    @FXML
+    private ComboBox<String> scharrDirectionCombo;
 
     @FXML
     private ImageView imageView;
     @FXML
     private ScrollPane imageScrollPane;
+
+
 
     @FXML
     private ComboBox<String> histogramChannelCombo;
@@ -101,8 +111,13 @@ public class MainWindowController {
 
         gradientShapeCombo.getItems().addAll("Square", "Ellipse");
         gradientShapeCombo.getSelectionModel().selectFirst();
-        gradientSizeFieldX.setTextFormatter(getDefaultKernelSizeTextFormatter());
-        gradientSizeFieldY.setTextFormatter(getDefaultKernelSizeTextFormatter());
+        sobelDirectionCombo.getItems().addAll("Horizontal", "Vertical", "Both");
+        sobelDirectionCombo.getSelectionModel().selectFirst();
+        scharrDirectionCombo.getItems().addAll("Horizontal", "Vertical", "Both");
+        scharrDirectionCombo.getSelectionModel().selectFirst();
+        gradientSizeFieldX.setTextFormatter(getDefaultKernelSizeTextFormatter(1001, 3));
+        gradientSizeFieldY.setTextFormatter(getDefaultKernelSizeTextFormatter(1001, 3));
+        sobelKernelSize.setTextFormatter(getOddNumberKernelSizeTextFormatter(31, 3));
 
         histogramChannelCombo.getItems().addAll("All (Luminance)",
 //                "All (Comparison)",
@@ -113,6 +128,7 @@ public class MainWindowController {
         metadataValueColumn.setCellValueFactory(new PropertyValueFactory<>("paramValue"));
         metadataValueColumn.setCellFactory(col -> new TableCell<>() {
             private final Tooltip tooltip = new Tooltip();
+
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -130,8 +146,8 @@ public class MainWindowController {
         metadataTableView.setItems(tableItems);
     }
 
-    private TextFormatter<Integer> getOddNumberKernelSizeTextFormatter() {
-        return new TextFormatter<>(new IntegerStringConverter(), 7, change -> {
+    private TextFormatter<Integer> getOddNumberKernelSizeTextFormatter(int maxValue, int defaultValue) {
+        return new TextFormatter<>(new IntegerStringConverter(), defaultValue, change -> {
             String newText = change.getControlNewText();
             if (newText.isEmpty()) {
                 return change;
@@ -141,7 +157,7 @@ public class MainWindowController {
             }
             try {
                 long value = Long.parseLong(newText);
-                if (value >= 1 && value <= 1001 && value % 2 != 0) {
+                if (value >= 1 && value <= maxValue && value % 2 != 0) {
                     return change;
                 }
             } catch (NumberFormatException e) {
@@ -151,7 +167,7 @@ public class MainWindowController {
         });
     }
 
-    private TextFormatter<Integer> getDefaultKernelSizeTextFormatter() {
+    private TextFormatter<Integer> getDefaultKernelSizeTextFormatter(int maxValue, int defaultValue) {
         UnaryOperator<TextFormatter.Change> filter = change -> {
             String newText = change.getControlNewText();
             if (newText.isEmpty()) {
@@ -159,13 +175,13 @@ public class MainWindowController {
             }
             if (newText.matches("\\d+")) {
                 int value = Integer.parseInt(newText);
-                if (value >= 1 && value <= 1001) {
+                if (value >= 1 && value <= maxValue) {
                     return change;
                 }
             }
             return null;
         };
-        return new TextFormatter<>(new IntegerStringConverter(), 3, filter);
+        return new TextFormatter<>(new IntegerStringConverter(), defaultValue, filter);
     }
 
 
@@ -216,6 +232,7 @@ public class MainWindowController {
         fitImageToViewport();
         centerImageToViewport();
     }
+
     @FXML
     public void onRotateRight() {
         imageModel.rotateRight();
@@ -607,9 +624,10 @@ public class MainWindowController {
     }
 
 
-    private void resetUiControls(){
+    private void resetUiControls() {
         grayscaleButton.setDisable(false);
         gradientShapeCombo.getSelectionModel().selectFirst();
+        sobelDirectionCombo.getSelectionModel().selectFirst();
     }
 
     public void onGrayscaleButton() {
@@ -623,6 +641,19 @@ public class MainWindowController {
         int sizeY = Integer.parseInt(gradientSizeFieldY.getText());
         String mask = gradientShapeCombo.getSelectionModel().getSelectedItem();
         imageModel.applyGradient(sizeX, sizeY, mask);
+        reloadImage();
+    }
+
+    public void onSobelApply() {
+        int size = Integer.parseInt(sobelKernelSize.getText());
+        String direction = sobelDirectionCombo.getSelectionModel().getSelectedItem();
+        imageModel.applySobel(size, direction);
+        reloadImage();
+    }
+
+    public void onScharrApply() {
+        String direction = scharrDirectionCombo.getSelectionModel().getSelectedItem();
+        imageModel.applyScharr(direction);
         reloadImage();
     }
 }

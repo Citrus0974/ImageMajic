@@ -94,12 +94,31 @@
 
                 <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="Infinity" text="Gradient"/>
                 <HBox alignment="CENTER" spacing="15.0">
-                    <Label text="X:"/>
+                    <Label text="X"/>
                     <TextField fx:id="gradientSizeFieldX" prefWidth="40" promptText="3"/>
-                    <Label text="Y:"/>
+                    <Label text="Y"/>
                     <TextField fx:id="gradientSizeFieldY" prefWidth="40" promptText="3"/>
                     <ComboBox fx:id="gradientShapeCombo" prefWidth="90"/>
                     <Button onAction="#onGradientApply" text="Apply"/>
+
+                </HBox>
+                <Separator/>
+
+                <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="Infinity" text="Sobel filter"/>
+                <HBox alignment="CENTER" spacing="15.0">
+                    <Label text="Size"/>
+                    <TextField fx:id="sobelKernelSize" prefWidth="40" promptText="3"/>
+                    <ComboBox fx:id="sobelDirectionCombo" prefWidth="150"/>
+                    <Button onAction="#onSobelApply" text="Apply"/>
+
+                </HBox>
+                <Separator/>
+
+                <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="Infinity" text="Scharr filter"/>
+                <HBox alignment="CENTER" spacing="15.0">
+                    <Label text="Direction"/>
+                    <ComboBox fx:id="scharrDirectionCombo" prefWidth="150"/>
+                    <Button onAction="#onScharrApply" text="Apply"/>
 
                 </HBox>
                 <Separator/>

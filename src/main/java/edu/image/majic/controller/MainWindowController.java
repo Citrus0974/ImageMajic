@@ -40,8 +40,11 @@ import static edu.image.majic.util.ImageUtils.addImageParamsToMetadata;
 import static edu.image.majic.util.MetadataUtils.fillImageMetadataHashmap;
 
 public class MainWindowController {
+
     @FXML
     private Label scaleLabel;
+    @FXML
+    private Button grayscaleButton;
 
     @FXML
     private ImageView imageView;
@@ -552,11 +555,12 @@ public class MainWindowController {
 
 
     private void resetUiControls(){
-
+        grayscaleButton.setDisable(false);
     }
 
     public void onGrayscaleButton() {
         imageModel.convertToGrayscale();
         reloadImage();
+        grayscaleButton.setDisable(true);
     }
 }

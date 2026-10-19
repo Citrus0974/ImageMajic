@@ -1,8 +1,10 @@
 package edu.image.majic.model;
 
+import com.drew.lang.annotations.Nullable;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
+import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
@@ -81,11 +83,27 @@ public class ImageModel {
 
 
     public void convertToGrayscale() {
-        if(currentMat == null || currentMat.channels() == 1) return;
+        if (currentMat == null || currentMat.channels() == 1) return;
         switch (currentMat.channels()) {
             case 3 -> Imgproc.cvtColor(currentMat, currentMat, Imgproc.COLOR_BGR2GRAY);
             case 4 -> Imgproc.cvtColor(currentMat, currentMat, Imgproc.COLOR_BGRA2GRAY);
-            default -> {}
+            default -> {
+            }
         }
+    }
+
+    public void applyGradient(int xSize, int ySize, String maskType) {
+        if (currentMat == null) return;
+        int shape;
+        switch (maskType) {
+            case "Square" -> shape = Imgproc.MORPH_RECT;
+            case "Cross" -> shape = Imgproc.MORPH_CROSS;
+            case "Ellipse" -> shape = Imgproc.MORPH_ELLIPSE;
+            default -> shape = Imgproc.MORPH_RECT;
+        }
+        Mat kernel = Imgproc.getStructuringElement(shape, new Size(xSize, ySize));
+        Imgproc.morphologyEx(currentMat, currentMat, Imgproc.MORPH_GRADIENT, kernel);
+        System.out.println("applied gradient: " + xSize + "x" + ySize + ", " + maskType);
+        kernel.release();
     }
 }

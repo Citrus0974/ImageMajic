@@ -9,7 +9,6 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.chart.AreaChart;
@@ -22,6 +21,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.converter.IntegerStringConverter;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.core.MatOfInt;
@@ -33,6 +33,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.UnaryOperator;
 
 import static edu.image.majic.util.HistogramUtils.calculateHistogramChartSeries;
 import static edu.image.majic.util.ImageUtils.addImageColorModelToMetadata;
@@ -45,6 +47,13 @@ public class MainWindowController {
     private Label scaleLabel;
     @FXML
     private Button grayscaleButton;
+
+    @FXML
+    public TextField gradientSizeFieldX;
+    @FXML
+    public TextField gradientSizeFieldY;
+    @FXML
+    private ComboBox<String> gradientShapeCombo;
 
     @FXML
     private ImageView imageView;
@@ -90,6 +99,11 @@ public class MainWindowController {
             }
         });
 
+        gradientShapeCombo.getItems().addAll("Square", "Ellipse");
+        gradientShapeCombo.getSelectionModel().selectFirst();
+        gradientSizeFieldX.setTextFormatter(getDefaultKernelSizeTextFormatter());
+        gradientSizeFieldY.setTextFormatter(getDefaultKernelSizeTextFormatter());
+
         histogramChannelCombo.getItems().addAll("All (Luminance)",
 //                "All (Comparison)",
                 "Red", "Green", "Blue");
@@ -115,6 +129,45 @@ public class MainWindowController {
         var tableItems = fillMetadataTableRows();
         metadataTableView.setItems(tableItems);
     }
+
+    private TextFormatter<Integer> getOddNumberKernelSizeTextFormatter() {
+        return new TextFormatter<>(new IntegerStringConverter(), 7, change -> {
+            String newText = change.getControlNewText();
+            if (newText.isEmpty()) {
+                return change;
+            }
+            if (!newText.matches("\\d+")) {
+                return null;
+            }
+            try {
+                long value = Long.parseLong(newText);
+                if (value >= 1 && value <= 1001 && value % 2 != 0) {
+                    return change;
+                }
+            } catch (NumberFormatException e) {
+                return null;
+            }
+            return null;
+        });
+    }
+
+    private TextFormatter<Integer> getDefaultKernelSizeTextFormatter() {
+        UnaryOperator<TextFormatter.Change> filter = change -> {
+            String newText = change.getControlNewText();
+            if (newText.isEmpty()) {
+                return change;
+            }
+            if (newText.matches("\\d+")) {
+                int value = Integer.parseInt(newText);
+                if (value >= 1 && value <= 1001) {
+                    return change;
+                }
+            }
+            return null;
+        };
+        return new TextFormatter<>(new IntegerStringConverter(), 3, filter);
+    }
+
 
     @FXML
     public void onScalePlus() {
@@ -556,11 +609,20 @@ public class MainWindowController {
 
     private void resetUiControls(){
         grayscaleButton.setDisable(false);
+        gradientShapeCombo.getSelectionModel().selectFirst();
     }
 
     public void onGrayscaleButton() {
         imageModel.convertToGrayscale();
         reloadImage();
         grayscaleButton.setDisable(true);
+    }
+
+    public void onGradientApply() {
+        int sizeX = Integer.parseInt(gradientSizeFieldX.getText());
+        int sizeY = Integer.parseInt(gradientSizeFieldY.getText());
+        String mask = gradientShapeCombo.getSelectionModel().getSelectedItem();
+        imageModel.applyGradient(sizeX, sizeY, mask);
+        reloadImage();
     }
 }

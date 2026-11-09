@@ -62,6 +62,20 @@ public class MainWindowController {
     private ComboBox<String> gradientShapeCombo;
     @FXML
     private ComboBox<String> scharrDirectionCombo;
+    @FXML
+    private TextField laplacianKernelSize;
+    @FXML
+    private TextField robertsNormalizationUpperBoundary;
+    @FXML
+    private Label minCannyValueLabel;
+    @FXML
+    private Slider minCannySlider;
+    @FXML
+    private Label maxCannyValueLabel;
+    @FXML
+    private Slider maxCannySlider;
+    @FXML
+    private TextField cannySize;
 
     @FXML
     private ImageView imageView;
@@ -118,6 +132,14 @@ public class MainWindowController {
         gradientSizeFieldX.setTextFormatter(getDefaultKernelSizeTextFormatter(1001, 3));
         gradientSizeFieldY.setTextFormatter(getDefaultKernelSizeTextFormatter(1001, 3));
         sobelKernelSize.setTextFormatter(getOddNumberKernelSizeTextFormatter(31, 3));
+        laplacianKernelSize.setTextFormatter(getOddNumberKernelSizeTextFormatter(1001, 3));
+        robertsNormalizationUpperBoundary.setTextFormatter(getDefaultKernelSizeTextFormatter(10000, 255));
+
+        minCannySlider.valueProperty().addListener((obs, oldVal, newVal) ->
+            minCannyValueLabel.setText(String.valueOf(newVal.intValue())));
+        maxCannySlider.valueProperty().addListener((obs, oldVal, newVal) ->
+            maxCannyValueLabel.setText(String.valueOf(newVal.intValue())));
+        cannySize.setTextFormatter(getOddNumberKernelSizeTextFormatter(31, 3));
 
         histogramChannelCombo.getItems().addAll("All (Luminance)",
 //                "All (Comparison)",
@@ -654,6 +676,29 @@ public class MainWindowController {
     public void onScharrApply() {
         String direction = scharrDirectionCombo.getSelectionModel().getSelectedItem();
         imageModel.applyScharr(direction);
+        reloadImage();
+    }
+
+    public void  onLaplacianApply() {
+        int size = Integer.parseInt(laplacianKernelSize.getText());
+        imageModel.applyLaplacian(size);
+        reloadImage();
+    }
+
+    public void onCannyApply(){
+        double thresholdMin = minCannySlider.getValue();
+        double thresholdMax = maxCannySlider.getValue();
+        int sobelSize = Integer.parseInt(cannySize.getText());
+        if (thresholdMin >255 || thresholdMin < 0 || thresholdMax > 255 || thresholdMax <0 ){
+            return;
+        }
+        imageModel.applyCanny(thresholdMin, thresholdMax, sobelSize);
+        reloadImage();
+    }
+
+    public void onRobertsApply() {
+        int upperBoundary = Integer.parseInt(robertsNormalizationUpperBoundary.getText());
+        imageModel.applyRoberts(upperBoundary);
         reloadImage();
     }
 }

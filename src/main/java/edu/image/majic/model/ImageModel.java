@@ -1,6 +1,5 @@
 package edu.image.majic.model;
 
-import com.drew.lang.annotations.Nullable;
 import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
@@ -174,7 +173,67 @@ public class ImageModel {
             mat2.release();
         }
         Core.convertScaleAbs(newMat, currentMat);
-        System.out.println("Applied Sobel filter: " + direction);
+        System.out.println("Applied Scharr filter: " + direction);
         newMat.release();
+    }
+
+    public void applyLaplacian(int size) {
+        if (currentMat == null) return;
+        Mat newMat = new Mat();
+        Imgproc.Laplacian(currentMat, newMat, CvType.CV_16S, size);
+        Core.convertScaleAbs(newMat, currentMat);
+        System.out.println("Applied Laplacian filter: " + size);
+        newMat.release();
+    }
+
+    public void applyCanny(double threshold1, double threshold2, int size) {
+        this.convertToGrayscale();
+        Imgproc.Canny(currentMat, currentMat, threshold1, threshold2, size);
+        System.out.println("Applied Canny operator: threshold1 " + threshold1 + "; threshold2" + threshold2 + ", size" + size);
+    }
+
+    public void applyRoberts(int upperBoundary) {
+        this.convertToGrayscale();
+        Mat matFloat = new Mat();
+        currentMat.convertTo(matFloat, CvType.CV_32F);
+
+        Mat kernelX = new Mat(2, 2, CvType.CV_32F);
+        kernelX.put(0, 0, 1.0, 0.0);
+        kernelX.put(1, 0, 0.0, -1.0);
+        Mat kernelY = new Mat(2, 2, CvType.CV_32F);
+        kernelY.put(0, 0, 0.0, 1.0);
+        kernelY.put(1, 0, -1.0, 0.0);
+
+        Mat gX = new Mat();
+        Mat gY = new Mat();
+        Imgproc.filter2D(matFloat, gX, -1, kernelX);
+        Imgproc.filter2D(matFloat, gY, -1, kernelY);
+        kernelY.release();
+        kernelX.release();
+
+        Mat gXSquare = new Mat();
+        Mat gYSquare = new Mat();
+        Core.multiply(gX, gX, gXSquare);
+        Core.multiply(gY, gY, gYSquare);
+        gX.release();
+        gY.release();
+
+
+        Mat sumSquares = new Mat();
+        Core.add(gXSquare, gYSquare, sumSquares);
+        gXSquare.release();
+        gYSquare.release();
+
+        Mat gradientMagnitude = new Mat();
+        Core.sqrt(sumSquares, gradientMagnitude);
+
+        Mat normalizedEdges = new Mat();
+        Core.normalize(gradientMagnitude, normalizedEdges, 0, upperBoundary, Core.NORM_MINMAX);
+        gradientMagnitude.release();
+        sumSquares.release();
+
+        normalizedEdges.convertTo(currentMat, CvType.CV_8U);
+        System.out.println("Applied Roberts");
+        normalizedEdges.release();
     }
 }

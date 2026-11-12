@@ -9,7 +9,6 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.chart.AreaChart;
@@ -34,7 +33,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.UnaryOperator;
 
 import static edu.image.majic.util.HistogramUtils.calculateHistogramChartSeries;
@@ -76,6 +74,15 @@ public class MainWindowController {
     private Slider maxCannySlider;
     @FXML
     private TextField cannySize;
+    @FXML
+    private TextField fastThreshold;
+    @FXML
+    private Button fastButton;
+    @FXML
+    private TextField siftCount;
+    @FXML
+    private Button siftButton;
+
 
     @FXML
     private ImageView imageView;
@@ -134,12 +141,13 @@ public class MainWindowController {
         sobelKernelSize.setTextFormatter(getOddNumberKernelSizeTextFormatter(31, 3));
         laplacianKernelSize.setTextFormatter(getOddNumberKernelSizeTextFormatter(1001, 3));
         robertsNormalizationUpperBoundary.setTextFormatter(getDefaultKernelSizeTextFormatter(10000, 255));
-
         minCannySlider.valueProperty().addListener((obs, oldVal, newVal) ->
             minCannyValueLabel.setText(String.valueOf(newVal.intValue())));
         maxCannySlider.valueProperty().addListener((obs, oldVal, newVal) ->
             maxCannyValueLabel.setText(String.valueOf(newVal.intValue())));
         cannySize.setTextFormatter(getOddNumberKernelSizeTextFormatter(31, 3));
+        fastThreshold.setTextFormatter(getDefaultKernelSizeTextFormatter(150, 60));
+        siftCount.setTextFormatter(getDefaultKernelSizeTextFormatter(100000, 500));
 
         histogramChannelCombo.getItems().addAll("All (Luminance)",
 //                "All (Comparison)",
@@ -650,6 +658,8 @@ public class MainWindowController {
         grayscaleButton.setDisable(false);
         gradientShapeCombo.getSelectionModel().selectFirst();
         sobelDirectionCombo.getSelectionModel().selectFirst();
+        fastButton.setDisable(false);
+        siftButton.setDisable(false);
     }
 
     public void onGrayscaleButton() {
@@ -700,5 +710,19 @@ public class MainWindowController {
         int upperBoundary = Integer.parseInt(robertsNormalizationUpperBoundary.getText());
         imageModel.applyRoberts(upperBoundary);
         reloadImage();
+    }
+
+    public void onFastApply() {
+        int threshold = Integer.parseInt(fastThreshold.getText());
+        imageModel.keypointsFAST(threshold);
+        reloadImage();
+        fastButton.setDisable(true);
+    }
+
+    public void onSiftApply() {
+        int n = Integer.parseInt(siftCount.getText());
+        imageModel.keypointsSIFT(n);
+        reloadImage();
+        siftButton.setDisable(true);
     }
 }

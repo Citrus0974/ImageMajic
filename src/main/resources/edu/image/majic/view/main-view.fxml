@@ -169,6 +169,23 @@
                 </HBox>
                 <Separator/>
 
+                <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="Infinity" text="SIFT keypoints detection"/>
+                <HBox alignment="CENTER" spacing="15.0">
+                    <Label text="Count"/>
+                    <TextField fx:id="siftCount" prefWidth="70" promptText="25"/>
+                    <Button fx:id="siftButton" onAction="#onSiftApply" text="Apply"/>
+                </HBox>
+                <Separator/>
+
+                <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="Infinity" text="FAST keypoints detection"/>
+                <HBox alignment="CENTER" spacing="15.0">
+                    <Label text="Threshold"/>
+                    <TextField fx:id="fastThreshold" prefWidth="70" promptText="25"/>
+                    <Button fx:id="fastButton" onAction="#onFastApply" text="Apply"/>
+                </HBox>
+                <Separator/>
+
+
                 <HBox spacing="20">
                     <Button maxWidth="Infinity" onAction="#onRotateLeft" text="Rotate left" HBox.hgrow="ALWAYS"/>
                     <Button maxWidth="Infinity" onAction="#onRotateRight" text="Rotate right" HBox.hgrow="ALWAYS"/>

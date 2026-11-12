@@ -1,6 +1,9 @@
 package edu.image.majic.model;
 
 import org.opencv.core.*;
+import org.opencv.features2d.FastFeatureDetector;
+import org.opencv.features2d.Features2d;
+import org.opencv.features2d.SIFT;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
@@ -235,5 +238,27 @@ public class ImageModel {
         normalizedEdges.convertTo(currentMat, CvType.CV_8U);
         System.out.println("Applied Roberts");
         normalizedEdges.release();
+    }
+
+    public void keypointsFAST(int threshold) {
+        MatOfKeyPoint keyPoints = new MatOfKeyPoint();
+        FastFeatureDetector detector = FastFeatureDetector.create(threshold);
+        detector.detect(currentMat, keyPoints);
+
+        Mat newMat = new Mat();
+        Features2d.drawKeypoints(currentMat, keyPoints, newMat, new Scalar(0, 0, 255));
+        currentMat = newMat;
+        System.out.println("Displayed keypoints from FAST detection");
+    }
+
+    public void keypointsSIFT(int count) {
+        MatOfKeyPoint keyPoints = new MatOfKeyPoint();
+        SIFT detector = SIFT.create(count);
+        detector.detect(currentMat, keyPoints);
+
+        Mat newMat = new Mat();
+        Features2d.drawKeypoints(currentMat, keyPoints, newMat, new Scalar(0, 0, 255));
+        currentMat = newMat;
+        System.out.println("Displayed keypoints from SIFT detection");
     }
 }

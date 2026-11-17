@@ -440,12 +440,9 @@ public class ImageModel {
         if (currentMat == null || currentMat.empty()) return;
         Mat resultMat = currentMat.clone();
 
-
         List<Rect> detectedPlates = new ArrayList<>();
 
-
-
-        try{
+        try {
             detectedPlates = detectWithHaar(currentMat, "haarcascade_russian_plate_number.xml");
             System.out.println("car numbers detection with haarcascade_russian_plate_number");
         } catch (Exception ex) {
@@ -453,7 +450,6 @@ public class ImageModel {
             ex.printStackTrace();
             detectedPlates = detectWithHeuristics(currentMat);
         }
-
 
 
         if (detectedPlates.isEmpty()) {

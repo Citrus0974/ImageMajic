@@ -188,7 +188,7 @@
                 <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="Infinity" text="Segmentation by color"/>
                 <HBox alignment="CENTER" spacing="15.0">
                     <Label text="Color clusters"/>
-                    <TextField fx:id="colorClusters" prefWidth="70" promptText="2"/>
+                    <TextField fx:id="clusterizationColorClusters" prefWidth="70" promptText="2"/>
                     <Button onAction="#onColorClusterization" text="Apply"/>
                 </HBox>
                 <Separator/>
@@ -196,9 +196,9 @@
                 <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="Infinity" text="Segmentation by color and position"/>
                 <HBox alignment="CENTER" spacing="15.0">
                     <Label text="Clusters"/>
-                    <TextField fx:id="colorPositionClusters" prefWidth="35" promptText="2"/>
+                    <TextField fx:id="clusterizationColorPositionClusters" prefWidth="35" promptText="2"/>
                     <Label text="Spacial Weight"/>
-                    <TextField fx:id="colorPositionWeight" prefWidth="35" promptText="2"/>
+                    <TextField fx:id="clusterizationColorPositionWeight" prefWidth="35" promptText="2"/>
                     <Button onAction="#onColorPositionClusterization" text="Apply"/>
                 </HBox>
                 <Separator/>
@@ -206,15 +206,15 @@
                 <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="Infinity" text="Segmentation by color, position and gradient"/>
                 <HBox alignment="CENTER" spacing="15.0">
                     <Label text="Gradient kernel size"/>
-                    <TextField fx:id="clusterizationGradientKernelSize" prefWidth="35" promptText="2"/>
+                    <TextField fx:id="clusterizationColorPositionGradientKernelSize" prefWidth="35" promptText="2"/>
                     <Label text="Gradient Weight"/>
-                    <TextField fx:id="clusterizationGradientWeight" prefWidth="35" promptText="2"/>
+                    <TextField fx:id="clusterizationColorPositionGradientWeight" prefWidth="35" promptText="2"/>
                 </HBox>
                 <HBox alignment="CENTER" spacing="15.0">
                     <Label text="Spacial Weight"/>
-                    <TextField fx:id="colorGradientPositionWeight" prefWidth="35" promptText="2"/>
+                    <TextField fx:id="clusterizationColorGradientPositionWeight" prefWidth="35" promptText="2"/>
                     <Label text="Clusters"/>
-                    <TextField fx:id="colorPositionGradientClusters" prefWidth="35" promptText="2"/>
+                    <TextField fx:id="clusterizationColorPositionGradientClusters" prefWidth="35" promptText="2"/>
                     <Button onAction="#onColorPositionGradientClusterization" text="Apply"/>
                 </HBox>
                 <Separator/>

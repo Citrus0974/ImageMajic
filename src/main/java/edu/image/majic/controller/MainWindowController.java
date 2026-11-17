@@ -9,7 +9,6 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.chart.AreaChart;
@@ -84,28 +83,25 @@ public class MainWindowController {
     @FXML
     private Button siftButton;
     @FXML
-    private TextField colorClusters;
+    private TextField clusterizationColorClusters;
     @FXML
-    private TextField colorPositionClusters;
+    private TextField clusterizationColorPositionClusters;
     @FXML
-    private TextField colorPositionWeight;
+    private TextField clusterizationColorPositionWeight;
     @FXML
-    private TextField clusterizationGradientKernelSize;
+    private TextField clusterizationColorPositionGradientKernelSize;
     @FXML
-    private TextField clusterizationGradientWeight;
+    private TextField clusterizationColorPositionGradientWeight;
     @FXML
-    private TextField colorPositionGradientClusters;
+    private TextField clusterizationColorPositionGradientClusters;
     @FXML
-    private TextField colorGradientPositionWeight;
+    private TextField clusterizationColorGradientPositionWeight;
 
-
-
+    
     @FXML
     private ImageView imageView;
     @FXML
     private ScrollPane imageScrollPane;
-
-
 
     @FXML
     private ComboBox<String> histogramChannelCombo;
@@ -164,13 +160,13 @@ public class MainWindowController {
         cannySize.setTextFormatter(getOddNumberKernelSizeTextFormatter(31, 3));
         fastThreshold.setTextFormatter(getDefaultKernelSizeTextFormatter(150, 60));
         siftCount.setTextFormatter(getDefaultKernelSizeTextFormatter(100000, 500));
-        colorClusters.setTextFormatter(getDefaultKernelSizeTextFormatter(20, 2));
-        colorPositionClusters.setTextFormatter(getDefaultKernelSizeTextFormatter(20, 2));
-        colorPositionWeight.setTextFormatter(getDefaultKernelSizeTextFormatter(100, 50));
-        colorPositionGradientClusters.setTextFormatter(getDefaultKernelSizeTextFormatter(20, 2));
-        colorGradientPositionWeight.setTextFormatter(getDefaultKernelSizeTextFormatter(100, 50));
-        clusterizationGradientWeight.setTextFormatter(getDefaultKernelSizeTextFormatter(100, 50));
-        clusterizationGradientKernelSize.setTextFormatter(getOddNumberKernelSizeTextFormatter(21, 3));
+        clusterizationColorClusters.setTextFormatter(getDefaultKernelSizeTextFormatter(20, 2));
+        clusterizationColorPositionClusters.setTextFormatter(getDefaultKernelSizeTextFormatter(20, 2));
+        clusterizationColorPositionWeight.setTextFormatter(getDefaultKernelSizeTextFormatter(100, 50));
+        clusterizationColorPositionGradientClusters.setTextFormatter(getDefaultKernelSizeTextFormatter(20, 2));
+        clusterizationColorGradientPositionWeight.setTextFormatter(getDefaultKernelSizeTextFormatter(100, 50));
+        clusterizationColorPositionGradientWeight.setTextFormatter(getDefaultKernelSizeTextFormatter(100, 50));
+        clusterizationColorPositionGradientKernelSize.setTextFormatter(getOddNumberKernelSizeTextFormatter(21, 3));
 
         histogramChannelCombo.getItems().addAll("All (Luminance)",
 //                "All (Comparison)",
@@ -750,22 +746,22 @@ public class MainWindowController {
     }
 
     public void onColorClusterization() {
-        int count = Integer.parseInt(colorClusters.getText());
+        int count = Integer.parseInt(clusterizationColorClusters.getText());
         imageModel.clusterByColor(count);
         reloadImage();
     }
 
     public void onColorPositionClusterization() {
-        int count = Integer.parseInt(colorPositionClusters.getText());
-        float spatialWeight = Float.parseFloat(colorPositionWeight.getText());
+        int count = Integer.parseInt(clusterizationColorPositionClusters.getText());
+        float spatialWeight = Float.parseFloat(clusterizationColorPositionWeight.getText());
         imageModel.clusterByColorAndPosition(count, spatialWeight);
         reloadImage();
     }
     public void onColorPositionGradientClusterization() {
-        int count = Integer.parseInt(colorPositionGradientClusters.getText());
-        int kernelSize = Integer.parseInt(clusterizationGradientKernelSize.getText());
-        float spatialWeight = Float.parseFloat(colorGradientPositionWeight.getText());
-        float gradientWeight = Float.parseFloat(clusterizationGradientWeight.getText());
+        int count = Integer.parseInt(clusterizationColorPositionGradientClusters.getText());
+        int kernelSize = Integer.parseInt(clusterizationColorPositionGradientKernelSize.getText());
+        float spatialWeight = Float.parseFloat(clusterizationColorGradientPositionWeight.getText());
+        float gradientWeight = Float.parseFloat(clusterizationColorPositionGradientWeight.getText());
         imageModel.clusterByColorPositionAndGradient(count, kernelSize, spatialWeight, gradientWeight);
         reloadImage();
     }
